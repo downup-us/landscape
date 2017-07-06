@@ -44,11 +44,9 @@ DEFAULT_OPTIONS = {
         'apply_namespace_template': 'landscaper apply -v --context={0} --namespace={1} {2}/{1}/*.yaml'
     },
     'helm': {
-        'monitor_tiller_cmd': {
-            'kubectl get pod --namespace=kube-system ' + \
+        'monitor_tiller_cmd': 'kubectl get pod --namespace=kube-system ' + \
                             '-l app=helm -l name=tiller ' + \
                             '-o jsonpath=\'{.items[0].status.phase}\''
-        }
     },
     'kubernetes': {
         'hack_clusterrolebinding_cmd': 'kubectl create clusterrolebinding ' + \

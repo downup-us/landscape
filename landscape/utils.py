@@ -12,7 +12,7 @@ def namespace_exists(namespace):
 	
 
 def git_get_branch():
-	return subprocess.check_output(['git', 'symbolic-ref', 'HEAD', '--short' ]).rstrip()
+	return subprocess.check_output(['git', 'symbolic-ref', 'HEAD', '--short' ]).rstrip().decode()
 
 
 def test_dns_domain(k8s_provisioner, cluster_dns_domain):

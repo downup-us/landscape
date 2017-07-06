@@ -50,7 +50,7 @@ def apply_minikube_cluster(provisioner, dns_domain):
     """
     minikube_status_cmd = DEFAULT_OPTIONS['minikube']['minikube_status_cmd']
     proc = subprocess.Popen(minikube_status_cmd, stdout=subprocess.PIPE, shell=True)
-    minikube_status = proc.stdout.read().rstrip()
+    minikube_status = proc.stdout.read().rstrip().decode()
 
     if not minikube_status == 'Running':
         start_minikube(provisioner, dns_domain)
@@ -122,11 +122,12 @@ def apply_tiller():
     tiller_pod_status = 'Unknown'
     tiller_pod_status_cmd = DEFAULT_OPTIONS['helm']['monitor_tiller_cmd']
     devnull = open(os.devnull, 'w')
-    print("Monitoring tiller pod status with command: {0}".format(tiller_pod_status_cmd))
-    while not tiller_pod_status == "Running":
+    print(tiller_pod_status_cmd)
+    while tiller_pod_status != "Running":
         proc = subprocess.Popen(tiller_pod_status_cmd, stdout=subprocess.PIPE, stderr=devnull, shell=True)
-        tiller_pod_status = proc.stdout.read().rstrip()
+        tiller_pod_status = proc.stdout.read().rstrip().decode()
         sys.stdout.write('.')
+        sys.stdout.flush()
         time.sleep(1)
     print('Sleeping to allow tiller to warm-up')
     time.sleep(2)
