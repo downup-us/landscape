@@ -22,7 +22,7 @@ K8S_NAMESPACE := "__all_namespaces__"
 
 # default command to deploy the cluster.
 # intention is to append to this command, based on the provisioner
-DEPLOY_CMD := landscape deploy --provisioner=$(PROVISIONER) --cluster-domain=$(DNS_DOMAIN)
+DEPLOY_CMD := landscape deploy --provisioner=$(PROVISIONER)
 # `make purge` flags
 PURGE_NAMESPACE_ITSELF := false
 DELETE_ALL_DATA := false

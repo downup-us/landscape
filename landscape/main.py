@@ -13,7 +13,7 @@ Usage:
 
 Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
-  --cluster-domain=<domain>               Domain used for inside-cluster DNS [default: cluster.local]
+  --cluster-domain=<domain>               Domain used for inside-cluster DNS (defaults to ${GIT_BRANCH}.local)
   --gce-project-id=<gce_project_name>     In GCE environment, which project ID to use
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
@@ -45,17 +45,23 @@ def main():
     #
     # a gke deployment is composed of:
     #  - branch name
+    git_branch_name = git_get_branch()
+
     args = docopt.docopt(__doc__)
     k8s_provisioner  = args['--provisioner']
     gce_project_name = args['--gce-project-id']
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
+    
+    # sets default cluster domain for various provisioners
+    if not cluster_domain:
+      if k8s_provisioner == 'terraform':
+        cluster_domain = 'cluster.local'
+      else:
+        cluster_domain = git_branch_name + '.local'
 
-    # gets branch of current working directory
-    git_branch_name = git_get_branch()
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner, gce_project_name, git_branch_name)
     if args['deploy']:
-        print("gce_project_name={0}".format(gce_project_name))
         provision_cluster(provisioner=k8s_provisioner, dns_domain=cluster_domain, project_id=gce_project_name, git_branch=git_branch_name)
 
         kubernetes_set_context(k8s_context)
