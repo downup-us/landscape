@@ -13,11 +13,11 @@
 # For use with https://github.com/shaneramey/landscaper/, first populate Vault:
 # Step 1
 # terraform GCE credentials json pulled from ServiceAccount in GCE IAM
-# vault write /secret/terraform/master/base \
+# vault write /secret/terraform/myproject-12345/master/base \
 #   credentials=@staging-b9af628162e8.json \
 #   project=myproject-12345 \
 #   region=us-west1 \
-#   branch_name=master
+#
 #
 # Step 2
 # run:
@@ -28,8 +28,12 @@
 # terraform apply
 #
 
-variable "branch_name" {
-  description = "The branch name. Used for Vault keys and k8s DNS domain"
+variable "gce_project_id" {
+  description = "The GCE project name to apply these resources"
+}
+
+variable "gke_cluster1_name" {
+  description = "The first GKE cluster's name"
 }
 
 terraform {
@@ -49,21 +53,24 @@ provider "vault" {
   #  - TERRAFORM_VAULT_MAX_TTL
 }
 
-# credentials, GCE project, region, branch to deploy
+# GCE auth information:
+# - credentials
+# - project
+# - region
 data "vault_generic_secret" "deploy_base" {
-  path = "secret/terraform/${var.branch_name}/base"
+  path = "secret/terraform/${var.gce_project_id}/auth"
 }
 
 # GKE-specific (network for nodes, network for pods)
 data "vault_generic_secret" "deploy_gke" {
-  path = "secret/terraform/${var.branch_name}/gke"
+  path = "secret/terraform/${var.gce_project_id}/gke/master"
 }
 
 # An example of how to connect two GCE networks with a VPN
 provider "google" {
-  credentials  = "${data.vault_generic_secret.deploy_base.data["credentials"]}"
-  project      = "${data.vault_generic_secret.deploy_base.data["project"]}"
+  project      = "${var.gce_project_id}"
   region       = "${data.vault_generic_secret.deploy_base.data["region"]}"
+  credentials  = "${data.vault_generic_secret.deploy_base.data["credentials"]}"
 }
 
 # Create the two networks we want to join. They must have separate, internal
@@ -74,7 +81,7 @@ resource "google_compute_network" "networkA" {
 }
 
 resource "google_compute_subnetwork" "gke_cluster1" {
-  name       = "gke-${var.branch_name}"
+  name       = "gke-master"
   ip_cidr_range = "${data.vault_generic_secret.deploy_gke.data["gke_network1_ipv4_cidr"]}"
   network = "${google_compute_network.networkA.self_link}"
 }
@@ -160,11 +167,11 @@ resource "google_compute_forwarding_rule" "fr2_udp4500" {
 }
 
 data "vault_generic_secret" "gce_vpn_vpn1" {
-  path = "secret/terraform/${var.branch_name}/vpn/vpn1"
+  path = "secret/terraform/${var.gce_project_id}/vpn/vpn1"
 }
 
 data "vault_generic_secret" "gce_vpn_vpn2" {
-  path = "secret/terraform/${var.branch_name}/vpn/vpn2"
+  path = "secret/terraform/${var.gce_project_id}/vpn/vpn2"
 }
 
 # Each tunnel is responsible for encrypting and decrypting traffic exiting
@@ -220,7 +227,7 @@ resource "google_compute_route" "route2" {
 }
 
 resource "google_container_cluster" "cluster1" {
-  name               = "${var.branch_name}"
+  name               = "${var.gke_cluster1_name}"
   network            = "${google_compute_network.networkA.name}"
   subnetwork         = "${google_compute_subnetwork.gke_cluster1.name}"
   cluster_ipv4_cidr  = "${data.vault_generic_secret.deploy_gke.data["gke_cluster1_pod_ipv4_cidr"]}"
@@ -230,7 +237,7 @@ resource "google_container_cluster" "cluster1" {
     "${data.vault_generic_secret.deploy_base.data["region"]}-c",
   ]
   initial_node_count = 1
-  node_version       = "1.6.4"
+  node_version       = "1.6.6"
   master_auth {
     username = "${data.vault_generic_secret.deploy_gke.data["master_auth_username"]}"
     password = "${data.vault_generic_secret.deploy_gke.data["master_auth_password"]}"
@@ -247,5 +254,5 @@ resource "google_container_cluster" "cluster1" {
 }
 
 output "get-credentials-command" {
-  value = "echo KUBECONFIG=$HOME/.kube/config-${data.vault_generic_secret.deploy_base.data["project"]} GOOGLE_CREDENTIALS='${data.vault_generic_secret.deploy_base.data["credentials"]}' gcloud --project=${data.vault_generic_secret.deploy_base.data["project"]} container clusters get-credentials ${var.branch_name} --zone=${data.vault_generic_secret.deploy_base.data["region"]}"
+  value = "KUBECONFIG=$HOME/.kube/config-${var.gce_project_id}-${var.gke_cluster1_name} GOOGLE_CREDENTIALS='${data.vault_generic_secret.deploy_base.data["credentials"]}' gcloud --project=${var.gce_project_id} container clusters get-credentials ${var.gke_cluster1_name} --zone=${data.vault_generic_secret.deploy_base.data["region"]} && echo kubectl config use-context ${var.gke_cluster1_name}"
 }
