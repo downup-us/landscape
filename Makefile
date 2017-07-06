@@ -36,7 +36,7 @@ else
 endif
 
 environment:
-	pip3 install --upgrade landscape
+	pip3 install --upgrade .
 	# landscape set-context --provisioner=minikube
 	# landscape helm-add-repos
 	./bin/env-set-context-k8s.sh
