@@ -14,8 +14,6 @@ PROVISIONER := minikube
 
 GIT_BRANCH := $(shell git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3)
 
-DNS_DOMAIN := cluster.local
-
 GCE_PROJECT_ID := please_pass_gce_project_id
 # override for operations on a single namespace
 K8S_NAMESPACE := "__all_namespaces__"
@@ -38,6 +36,9 @@ else
 endif
 
 environment:
+	git clone git@github.com:shaneramey/landscape.git
+	cd landscape
+	pip install --upgrade landscape
 	# landscape set-context --provisioner=minikube
 	# landscape helm-add-repos
 	./bin/env-set-context-k8s.sh
