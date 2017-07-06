@@ -36,8 +36,6 @@ else
 endif
 
 environment:
-	git clone git@github.com:shaneramey/landscape.git
-	cd landscape
 	pip install --upgrade landscape
 	# landscape set-context --provisioner=minikube
 	# landscape helm-add-repos
