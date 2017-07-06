@@ -54,7 +54,6 @@ def main():
     # gets branch of current working directory
     git_branch_name = git_get_branch()
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner, gce_project_name, git_branch_name)
-    print("k8s_context={0}".format(k8s_context))
     if args['deploy']:
         print("gce_project_name={0}".format(gce_project_name))
         provision_cluster(provisioner=k8s_provisioner, dns_domain=cluster_domain, project_id=gce_project_name, git_branch=git_branch_name)

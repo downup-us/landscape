@@ -67,7 +67,8 @@ def start_minikube(provisioner, dns_domain):
     k8s_provision_command = start_command_for_provisioner(provisioner, dns_domain)
     print('  - running ' + k8s_provision_command)
     minikube_failed = subprocess.call(k8s_provision_command, shell=True)
-    print("minikube_failed={}".format(minikube_failed))
+    if minikube_failed:
+        sys.exit('ERROR: minikube failure')
 
 
 def vault_load_gce_creds():
@@ -121,12 +122,14 @@ def apply_tiller():
     tiller_pod_status = 'Unknown'
     tiller_pod_status_cmd = DEFAULT_OPTIONS['helm']['monitor_tiller_cmd']
     devnull = open(os.devnull, 'w')
+    print("Monitoring tiller pod status with command: {0}".format(tiller_pod_status_cmd))
     while not tiller_pod_status == "Running":
         proc = subprocess.Popen(tiller_pod_status_cmd, stdout=subprocess.PIPE, stderr=devnull, shell=True)
         tiller_pod_status = proc.stdout.read().rstrip()
         sys.stdout.write('.')
         time.sleep(1)
-    time.sleep(2) # need to give tiller a little time to warm up
+    print('Sleeping to allow tiller to warm-up')
+    time.sleep(2)
 
 
 def start_command_for_provisioner(provisioner_name, dns_domain_name):
