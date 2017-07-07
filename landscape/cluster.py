@@ -72,6 +72,9 @@ def start_minikube(provisioner, dns_domain):
 
 
 def vault_load_gce_creds():
+    """
+    Load GCE credentials from Vault
+    """
     vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
 
     creds_item = "/secret/terraform/{0}/{1}".format(
@@ -90,6 +93,9 @@ def vault_load_gce_creds():
 
 
 def minikube_disable_addons():
+    """
+    Disable default add-ons for minikube that we are replacing with helm deploys
+    """
     disable_addons_cmd = DEFAULT_OPTIONS['minikube']['minikube_addons_disable_cmd']
     print('- disabling unused minikube addons ' + disable_addons_cmd)
     print('  - running ' + disable_addons_cmd)
@@ -99,9 +105,17 @@ def minikube_disable_addons():
 
 
 def hack_wide_open_security():
+    """
+    Temporary work-around until ClusterRole RBAC is implemented
+    """
     need_crb = subprocess.call('kubectl get clusterrolebinding ' + \
                                 'permissive-binding', shell=True)
-    hack_cmd = DEFAULT_OPTIONS['kubernetes']['hack_clusterrolebinding_cmd']
+    hack_cmd = 'kubectl create clusterrolebinding ' + \
+                                    'permissive-binding ' + \
+                                    '--clusterrole=cluster-admin ' + \
+                                    '--user=admin ' + \
+                                    '--user=kubelet ' + \
+                                    '--group=system:serviceaccounts'
     if need_crb:
         print('  - creating permissive clusterrolebinding')
         print('    - running ' + hack_cmd)
@@ -152,5 +166,7 @@ def start_command_for_provisioner(provisioner_name, dns_domain_name):
 
 
 def deploy(provisioner='minikube'):
-    """Deploy a cluster"""
+    """
+    Deploy a cluster
+    """
     print("placeholder for breaking out minikube vs terraform")

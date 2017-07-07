@@ -10,9 +10,11 @@ __copyright__ = 'Copyright 2017'
 
 DEFAULT_OPTIONS = {
     'lastpass': {
+        'version': '1.2.0',
         'folder': 'Shared-k8s/k8s-landscaper',
     },
     'minikube': {
+        'version': '0.20.0',
     	'init_cmd_template': 'minikube start ' + \
             "--dns-domain={0} " + \
             "--vm-driver={1} " + \
@@ -37,6 +39,7 @@ DEFAULT_OPTIONS = {
         'dev_vault_init_cmd': 'docker run --cap-add=IPC_LOCK -p 8200:8200 -d --name=dev-vault vault'
     },
     'terraform': {
+        'version': '0.9.9',
         'init_cmd_template': 'terraform validate ' + \
             ' && ' + \
             ' terraform plan -var="gce_project_id={0}" -var="gke_cluster1_name={1}" ' + \
@@ -44,9 +47,11 @@ DEFAULT_OPTIONS = {
             'terraform apply -var="gce_project_id={0}" -var="gke_cluster1_name={1}"'
     },
     'landscaper': {
+        'version': '1.0.5',
         'apply_namespace_template': 'landscaper apply -v --context={0} --namespace={1} {2}/{1}/*.yaml'
     },
     'helm': {
+        'version': '2.4.2',
         'monitor_tiller_cmd': 'kubectl get pod --namespace=kube-system ' + \
                             '-l app=helm -l name=tiller ' + \
                             '-o jsonpath=\'{.items[0].status.phase}\'',
@@ -54,12 +59,7 @@ DEFAULT_OPTIONS = {
             "charts.downup.us": "http://charts.downup.us/"
         }
     },
-    'kubernetes': {
-        'hack_clusterrolebinding_cmd': 'kubectl create clusterrolebinding ' + \
-                                    'permissive-binding ' + \
-                                    '--clusterrole=cluster-admin ' + \
-                                    '--user=admin ' + \
-                                    '--user=kubelet ' + \
-                                    '--group=system:serviceaccounts'
+    'kubectl': {
+        'version': '1.6.4'
     }
 }

@@ -4,6 +4,7 @@
 
 Usage:
   landscape deploy [--provisioner=<provisioner] [--cluster-domain=<domain>] [--gce-project-id=<gce_project_name>]
+  landscape setuptools
   landscape environment
   landscape test
   landscape verify
@@ -27,6 +28,7 @@ import sys
 import subprocess
 
 from . import DEFAULT_OPTIONS
+from .setup import install_prerequisites
 from .environment import setup_environment
 from .cluster import provision_cluster
 from .landscaper import deploy_helm_charts

@@ -26,7 +26,7 @@ PURGE_NAMESPACE_ITSELF := false
 DELETE_ALL_DATA := false
 
 # Jenkinsfile stages, plus other targets
-.PHONY: environment test deploy verify report purge csr_approve
+.PHONY: setup environment test deploy verify report purge csr_approve
 
 deploy: environment test
 ifeq ($(PROVISIONER),terraform)
@@ -34,6 +34,10 @@ ifeq ($(PROVISIONER),terraform)
 else
 	${DEPLOY_CMD}
 endif
+
+setup:
+	landscape setuptools
+
 
 environment:
 	virtualenv ve 
