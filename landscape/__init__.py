@@ -31,7 +31,8 @@ DEFAULT_OPTIONS = {
         'minikube_addons_disable_cmd': 'minikube addons disable kube-dns && ' + \
                                         'minikube addons enable default-storageclass && ' + \
                                         'minikube addons enable ingress && ' + \
-                                        'minikube addons disable registry-creds'
+                                        'minikube addons disable registry-creds',
+        'dev_vault_init_cmd': 'docker run --cap-add=IPC_LOCK -p 8200:8200 -d --name=dev-vault vault'
     },
     'terraform': {
         'init_cmd_template': 'terraform validate ' + \
@@ -46,7 +47,10 @@ DEFAULT_OPTIONS = {
     'helm': {
         'monitor_tiller_cmd': 'kubectl get pod --namespace=kube-system ' + \
                             '-l app=helm -l name=tiller ' + \
-                            '-o jsonpath=\'{.items[0].status.phase}\''
+                            '-o jsonpath=\'{.items[0].status.phase}\'',
+        'chart_repos': { # repo name and url
+            "charts.downup.us": "http://charts.downup.us/"
+        }
     },
     'kubernetes': {
         'hack_clusterrolebinding_cmd': 'kubectl create clusterrolebinding ' + \

@@ -36,13 +36,10 @@ else
 endif
 
 environment:
-	virtualenv -p /usr/bin/python3 ve
+	virtualenv ve 
 	. ve/bin/activate
-	pip3 install --upgrade .
-	# landscape set-context --provisioner=minikube
-	# landscape helm-add-repos
-	./bin/env-set-context-k8s.sh
-	./bin/env-add-repos-helm.sh
+	pip install --upgrade .
+	landscape environment
 
 test: environment
 	landscape test

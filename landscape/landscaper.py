@@ -15,34 +15,27 @@ import hvac
 import yaml
 
 from .kubernetes import kubernetes_get_context
+from .environment import get_vault_token
 
-def deploy_helm_charts_for_namespace(namespace):
-    print(
-        "### \
-        # Namespace: {} \
-        ### \
-        \
-        Deploying into namespace {}".format(namespace))
-    create_namespace_if_needed(namespace)
-
-
-def create_namespace_if_needed(namespace):
+def deploy_helm_charts(kubernetes_provisioner, git_branch):
     """
-    Checks if namespace exists, and if it doesn't - create it
+    Deploys all helm charts for current cluster
+    Auths to Vault first
+
+    Arguments:
+      git_branch: the branch to deploy of this repo
+
+    Returns: None
     """
-    need_ns = sp.call("kubectl get ns {}".format(namespace), shell=True)
-    if need_ns:
-        create_failed = sp.call("kubectl create ns {}".format(namespace))
-        if create_failed:
-            sys.exit("ERROR: failed to create namespace {}".format(namespace))
-
-
-def deploy_helm_charts(git_branch):
-    minikube_environment = True
-    print("Deploying Landscaper charts")
+    print('- setting VAULT_TOKEN in environment')
+    os.environ['VAULT_TOKEN'] = get_vault_token(kubernetes_provisioner)
+    print('- deploying helm charts')
     deploy_chart_set('charts_core', git_branch)
-    if minikube_environment:
+    if kubernetes_provisioner == 'minikube':
         deploy_chart_set('charts_minikube', git_branch)
+    elif kubernetes_provisioner == 'terraform':
+        print("no terraform-specific charts yet")
+
 
 
 def deploy_chart_set(chart_set_dir, git_branch):

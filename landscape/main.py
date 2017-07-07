@@ -18,7 +18,7 @@ Options:
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
 
-Provisioner can be one of minikube, terraform
+Provisioner can be one of minikube, terraform.
 """
 
 import docopt
@@ -27,9 +27,10 @@ import sys
 import subprocess
 
 from . import DEFAULT_OPTIONS
+from .environment import setup_environment
 from .cluster import provision_cluster
 from .landscaper import deploy_helm_charts
-from .utils import git_get_branch
+from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_region_for_project_and_branch_deployment)
 from .kubernetes import kubernetes_set_context
 # from .vault import gke_get_region_for_project_name
 from . import verify
@@ -53,37 +54,24 @@ def main():
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
     
-    # sets default cluster domain for various provisioners
+    # Cluster DNS domain inside containers' /etc/resolv.conf
     if not cluster_domain:
-      if k8s_provisioner == 'terraform':
-        cluster_domain = 'cluster.local'
-      else:
         cluster_domain = git_branch_name + '.local'
+        # GKE requires 'cluster.local' as DNS domain
+        if k8s_provisioner == 'terraform':
+            cluster_domain = 'cluster.local'
+        
 
-    k8s_context = get_k8s_context_for_provisioner(k8s_provisioner, gce_project_name, git_branch_name)
+    k8s_context = get_k8s_context_for_provisioner(k8s_provisioner,
+                                                    gce_project_name,
+                                                    git_branch_name)
     if args['deploy']:
         provision_cluster(provisioner=k8s_provisioner, dns_domain=cluster_domain, project_id=gce_project_name, git_branch=git_branch_name)
 
         kubernetes_set_context(k8s_context)
-        deploy_helm_charts(git_branch_name)
-
-
-def get_k8s_context_for_provisioner(provisioner, project_name, git_branch_name):
-    if provisioner == 'terraform':
-      git_branch_name = 'master'
-      region = gce_get_region_for_project_and_branch_deployment(project_name, git_branch_name)
-      return "gke_{0}_{1}_{2}".format(project_name, region, git_branch_name)
-    else:
-      # covers minikube
-      return provisioner
-
-
-def gce_get_region_for_project_and_branch_deployment(gce_project, git_branch):
-  """
-  Returns a region based on the gce_project + git_branch of a GCE deployment
-  """
-  return 'us-west1-a'
-
+        deploy_helm_charts(k8s_provisioner, git_branch_name)
+    elif args['environment']:
+        setup_environment(k8s_provisioner)
 
 if __name__ == "__main__":
     main()
