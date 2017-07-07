@@ -36,6 +36,8 @@ else
 endif
 
 environment:
+	virtualenv -p /usr/bin/python3 ve
+	source ve/bin/activate
 	pip3 install --upgrade .
 	# landscape set-context --provisioner=minikube
 	# landscape helm-add-repos
