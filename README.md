@@ -21,13 +21,7 @@ export VAULT_ADDR=http://127.0.0.1:8200
 # grab an environment's secrets
 # example: master branch (production) credentials
 lpass show Shared-k8s/k8s-landscaper/master --notes
-# copy above output and paste into your terminal
-```
-- install 'landscape' python tool (this repo)
-```
-cd landscape && pip install --upgrade landscape
-```
-- (minikube) run:
+- (minikube laptop cluster) run:
 ```
 make PROVISIONER=minikube
 ```
