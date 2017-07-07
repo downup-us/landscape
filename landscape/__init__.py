@@ -25,6 +25,8 @@ DEFAULT_OPTIONS = {
             '--cpus=8 ' + \
             '--disk-size=20g ' + \
             '--memory=8192 ' + \
+            '--docker-env HTTPS_PROXY=$HTTPS_PROXY ' + \
+            '--docker-env HTTP_PROXY=$HTTP_PROXY ' + \
             '-v=0',
         'minikube_status_cmd': 'minikube status ' + \
                                 '--format=\'{{.MinikubeStatus}}\'',
