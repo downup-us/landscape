@@ -10,7 +10,7 @@ __copyright__ = 'Copyright 2017'
 
 THIRD_PARTY_TOOL_OPTIONS = {
     'lastpass': {
-        'version': '1.2.0',
+        'version': '1.2.1',
         'folder': 'Shared-k8s/k8s-landscaper',
     },
     'minikube': {
@@ -47,7 +47,7 @@ THIRD_PARTY_TOOL_OPTIONS = {
             'terraform apply -var="gce_project_id={0}" -var="gke_cluster1_name={1}"'
     },
     'landscaper': {
-        'version': '1.0.5',
+        'version': '1.0.7',
         'apply_namespace_template': 'landscaper apply -v --context={0} --namespace={1} {2}/{1}/*.yaml'
     },
     'helm': {

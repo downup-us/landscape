@@ -129,7 +129,7 @@ def apply_tiller():
     Checks if Tiller is already installed. If not, install it.
     """
     helm_provision_command = 'helm init'
-    print('  - running ' + helm_provision_command)
+    print('  - running command: ' + helm_provision_command)
     subprocess.call(helm_provision_command, shell=True)
 
     print('  - waiting for tiller pod to be ready')
@@ -143,8 +143,8 @@ def apply_tiller():
         sys.stdout.write('.')
         sys.stdout.flush()
         time.sleep(1)
-    print('Sleeping to allow tiller to warm-up')
-    time.sleep(2)
+    print('  - sleeping to allow tiller to warm-up')
+    time.sleep(5)
 
 
 def start_command_for_provisioner(provisioner_name, dns_domain_name):

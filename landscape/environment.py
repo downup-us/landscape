@@ -68,7 +68,6 @@ def get_vault_token(vault_provisioner):
     get_token_cmd = VAULT_TOKEN_CMD_FOR_ENV[vault_provisioner]
     proc = subprocess.Popen(get_token_cmd, stdout=subprocess.PIPE, shell=True)
     vault_auth_token = proc.stdout.read().rstrip().decode()
-    print("vault_auth_token={0}".format(vault_auth_token))
 
     return vault_auth_token
 
