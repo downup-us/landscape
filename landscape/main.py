@@ -4,7 +4,6 @@
 
 Usage:
   landscape deploy [--provisioner=<provisioner] [--cluster-domain=<domain>] [--gce-project-id=<gce_project_name>]
-  landscape setuptools
   landscape environment
   landscape test
   landscape verify
@@ -26,8 +25,9 @@ import docopt
 import os
 import sys
 import subprocess
+import platform
 
-from . import DEFAULT_OPTIONS
+from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
 from .environment import setup_environment
 from .cluster import provision_cluster
@@ -48,14 +48,24 @@ def main():
     #
     # a gke deployment is composed of:
     #  - branch name
+
+    # branch is used to pull secrets from Vault, and to distinguish clusters
     git_branch_name = git_get_branch()
 
     args = docopt.docopt(__doc__)
+    
+    # install tools for this platform
+    os_type = platform.system() # 'Darwin'
+
+    # Which kubernetes provisioner to use.
+    # Valid parameters: minikube, terraform (GKE)
     k8s_provisioner  = args['--provisioner']
+    
+    # Project name to deploy. Must be in Vault
     gce_project_name = args['--gce-project-id']
+
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
-    
     # Cluster DNS domain inside containers' /etc/resolv.conf
     if not cluster_domain:
         cluster_domain = git_branch_name + '.local'
@@ -63,7 +73,6 @@ def main():
         if k8s_provisioner == 'terraform':
             cluster_domain = 'cluster.local'
         
-
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner,
                                                     gce_project_name,
                                                     git_branch_name)
@@ -72,8 +81,9 @@ def main():
 
         kubernetes_set_context(k8s_context)
         deploy_helm_charts(k8s_provisioner, git_branch_name)
+    # local tool setup
     elif args['environment']:
-        setup_environment(k8s_provisioner)
+        setup_environment(os_type, k8s_provisioner)
 
 if __name__ == "__main__":
     main()

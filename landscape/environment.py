@@ -5,17 +5,21 @@
 import subprocess
 import os
 
-from . import DEFAULT_OPTIONS
+from . import THIRD_PARTY_TOOL_OPTIONS
+from .setup import install_prerequisites
 
-def setup_environment(environment_provisioner):
+def setup_environment(local_system_os, environment_provisioner):
     """
     Sets environment settings intended to be used across multiple deployments
+    Installs local pre-requisites (kubectl, landscaper, helm, etc.)
+    Configures helm chart repos. It should also authenticate with vault but that's untested
 
     Arguments: None
 
     Returns: None
     """
-    helm_chart_repo_map = DEFAULT_OPTIONS['helm']['chart_repos']
+    install_prerequisites(local_system_os)
+    helm_chart_repo_map = THIRD_PARTY_TOOL_OPTIONS['helm']['chart_repos']
     helm_add_chart_repos(helm_chart_repo_map)
 
     # custom environment per-provisioner type
@@ -46,7 +50,7 @@ def start_local_dev_vault():
     check_dev_vault_cmd = 'docker ps | grep dev-vault'
     need_dev_vault = subprocess.call(check_dev_vault_cmd, shell=True)
     if need_dev_vault:
-        start_dev_vault_cmd = DEFAULT_OPTIONS['minikube']['dev_vault_init_cmd']
+        start_dev_vault_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['dev_vault_init_cmd']
         subprocess.call(start_dev_vault_cmd, shell=True)
 
 def get_vault_token(vault_provisioner):

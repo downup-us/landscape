@@ -8,7 +8,7 @@ Limitations: git branch name stored in Vault as key.
  This means only one GKE cluster with branch name for each GCE "Project"
 
 """
-from . import DEFAULT_OPTIONS
+from . import THIRD_PARTY_TOOL_OPTIONS
 from .environment import set_gce_credentials
 from .terraform import apply_terraform_cluster
 import subprocess
@@ -48,7 +48,7 @@ def apply_minikube_cluster(provisioner, dns_domain):
 
     Returns: None
     """
-    minikube_status_cmd = DEFAULT_OPTIONS['minikube']['minikube_status_cmd']
+    minikube_status_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['minikube_status_cmd']
     proc = subprocess.Popen(minikube_status_cmd, stdout=subprocess.PIPE, shell=True)
     minikube_status = proc.stdout.read().rstrip().decode()
 
@@ -96,7 +96,7 @@ def minikube_disable_addons():
     """
     Disable default add-ons for minikube that we are replacing with helm deploys
     """
-    disable_addons_cmd = DEFAULT_OPTIONS['minikube']['minikube_addons_disable_cmd']
+    disable_addons_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['minikube_addons_disable_cmd']
     print('- disabling unused minikube addons ' + disable_addons_cmd)
     print('  - running ' + disable_addons_cmd)
     failed_to_disable_addons = subprocess.call(disable_addons_cmd, shell=True)
@@ -134,7 +134,7 @@ def apply_tiller():
 
     print('  - waiting for tiller pod to be ready')
     tiller_pod_status = 'Unknown'
-    tiller_pod_status_cmd = DEFAULT_OPTIONS['helm']['monitor_tiller_cmd']
+    tiller_pod_status_cmd = THIRD_PARTY_TOOL_OPTIONS['helm']['monitor_tiller_cmd']
     devnull = open(os.devnull, 'w')
     print(tiller_pod_status_cmd)
     while tiller_pod_status != "Running":
@@ -153,8 +153,8 @@ def start_command_for_provisioner(provisioner_name, dns_domain_name):
 
     """
     print('Using provisioner: ' + provisioner_name)
-    if provisioner_name in DEFAULT_OPTIONS:
-        start_cmd_template = DEFAULT_OPTIONS[provisioner_name]['init_cmd_template']
+    if provisioner_name in THIRD_PARTY_TOOL_OPTIONS:
+        start_cmd_template = THIRD_PARTY_TOOL_OPTIONS[provisioner_name]['init_cmd_template']
     else:
         sys.exit("provisioner must be minikube or terraform")
 

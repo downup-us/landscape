@@ -8,7 +8,7 @@ __license__ = 'Apache 2.0'
 __version__ = '0.0.1'
 __copyright__ = 'Copyright 2017'
 
-DEFAULT_OPTIONS = {
+THIRD_PARTY_TOOL_OPTIONS = {
     'lastpass': {
         'version': '1.2.0',
         'folder': 'Shared-k8s/k8s-landscaper',

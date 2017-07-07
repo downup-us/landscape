@@ -1,7 +1,7 @@
 import subprocess
 import sys
 from .utils import test_dns_domain
-from . import DEFAULT_OPTIONS
+from . import THIRD_PARTY_TOOL_OPTIONS
 
 def apply_terraform_cluster(provisioner, dns_domain, project_id, template_dir, git_branch_name):
     """
@@ -16,7 +16,7 @@ def apply_terraform_cluster(provisioner, dns_domain, project_id, template_dir, g
     print("project_id={0}".format(project_id))
     dns_check_succeeds = test_dns_domain(provisioner, dns_domain)
     if dns_check_succeeds:
-        terraform_cmd_tmpl = DEFAULT_OPTIONS['terraform']['init_cmd_template']
+        terraform_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['terraform']['init_cmd_template']
         terraform_cmd = terraform_cmd_tmpl.format(project_id, git_branch_name)
         print('  - running ' + terraform_cmd)
         failed_to_apply_terraform = subprocess.call(terraform_cmd, cwd=template_dir, shell=True)
