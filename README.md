@@ -133,6 +133,3 @@ export HTTPS_PROXY=http://${DEFAULT_IP}:3128
 export HTTP_PROXY=http://${DEFAULT_IP}:3128
 ```
 
-## TODO
-currently vault reads in all values to env vars. In the future the env vars to
-be read from Vault should be selected from the Landscaper yaml definition of the secrets
