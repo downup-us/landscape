@@ -142,9 +142,9 @@ def apply_tiller():
         tiller_pod_status = proc.stdout.read().rstrip().decode()
         sys.stdout.write('.')
         sys.stdout.flush()
-        time.sleep(1)
+        time.sleep(1) 
     print('  - sleeping to allow tiller to warm-up')
-    time.sleep(5)
+    time.sleep(3)
 
 
 def start_command_for_provisioner(provisioner_name, dns_domain_name):
