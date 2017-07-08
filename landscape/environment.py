@@ -47,6 +47,10 @@ def start_local_dev_vault():
     """
     Starts a local Hashicorp Vault container used to hold bootstrap secrets
     """
+    docker_running_cmd = 'docker ps'
+    docker_stopped = subprocess.call(docker_running_cmd, shell=True)
+    if docker_stopped:
+        sys.exit('Docker daemon not running - exiting.')
     check_dev_vault_cmd = 'docker ps | grep dev-vault'
     need_dev_vault = subprocess.call(check_dev_vault_cmd, shell=True)
     if need_dev_vault:
@@ -62,9 +66,12 @@ def get_vault_token(vault_provisioner):
     Returns: Vault auth token pulled from docker's logs
     """
     VAULT_TOKEN_CMD_FOR_ENV = {
-        'minikube': "docker logs dev-vault 2>&1 | grep 'Root Token' | tail -n 1 | awk '{ print $3 }'",
-        'terraform': 'export VAULT_ADDR=https://http.vault.svc.{0} && vault auth {1}'
+        'minikube': "docker logs dev-vault 2>&1 | grep 'Root Token' | ' + \
+                        'tail -n 1 | awk '{ print $3 }'",
+        'terraform': 'export VAULT_ADDR=https://http.vault.svc.{0} && ' + \
+                        'vault auth {1}'
     }
+
     get_token_cmd = VAULT_TOKEN_CMD_FOR_ENV[vault_provisioner]
     proc = subprocess.Popen(get_token_cmd, stdout=subprocess.PIPE, shell=True)
     vault_auth_token = proc.stdout.read().rstrip().decode()

@@ -24,7 +24,7 @@ def provision_cluster(provisioner, dns_domain, project_id, git_branch):
       provisioner: minikube or terraform
 
     """
-    tf_templates_dir = './var/terraform'
+    tf_templates_dir = './terraform'
     print("Converging cluster")
     # Start cluster
     if provisioner == 'minikube':

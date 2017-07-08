@@ -36,7 +36,10 @@ THIRD_PARTY_TOOL_OPTIONS = {
                                         'minikube addons enable default-storageclass && ' + \
                                         'minikube addons enable ingress && ' + \
                                         'minikube addons disable registry-creds',
-        'dev_vault_init_cmd': 'docker run --cap-add=IPC_LOCK -p 8200:8200 -d --name=dev-vault vault'
+        'dev_vault_init_cmd': 'docker exec dev-vault true || ' + \
+                                'docker start dev-vault || docker run ' + \
+                                '--cap-add=IPC_LOCK -p 8200:8200 ' + \
+                                '-d --name=dev-vault vault'
     },
     'terraform': {
         'version': '0.9.9',
