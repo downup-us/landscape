@@ -60,7 +60,8 @@ def list_deploy_targets():
     terraform_targets_root = '/secret/terraform/'
     terraform_targets_in_vault = vault_client.list(terraform_targets_root)
     available_terraform_targets = terraform_targets_in_vault['data']['keys']
-    for target in available_terraform_targets:
+    for target_with_trailing_slash in available_terraform_targets:
+        target = re.sub('\/$', '', target_with_trailing_slash)
         print(target)
 
 
