@@ -3,6 +3,9 @@
 
 import subprocess
 import re
+import hvac
+import os
+import sys
 
 def namespace_exists(namespace):
     if subprocess.call(['kubectl', 'get', 'ns', namespace], shell=True):
@@ -51,4 +54,15 @@ def get_k8s_context_for_provisioner(provisioner, project_name, git_branch_name):
       # covers minikube
       return provisioner
 
+def list_deploy_targets():
+    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
 
+    terraform_targets_root = '/secret/terraform/'
+    terraform_targets_in_vault = vault_client.list(terraform_targets_root)
+    available_terraform_targets = terraform_targets_in_vault['data']['keys']
+    for target in available_terraform_targets:
+        print(target)
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)

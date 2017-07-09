@@ -4,7 +4,7 @@
 
 Usage:
   landscape deploy [--provisioner=<provisioner] [--cluster-domain=<domain>] [--gce-project-id=<gce_project_name>]
-  landscape environment
+  landscape environment [--list-targets]
   landscape test
   landscape verify
   landscape report
@@ -13,10 +13,11 @@ Usage:
 
 Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
-  --cluster-domain=<domain>               Domain used for inside-cluster DNS (defaults to ${GIT_BRANCH}.local)
-  --gce-project-id=<gce_project_name>     In GCE environment, which project ID to use
+  --cluster-domain=<domain>               domain used for inside-cluster DNS (defaults to ${GIT_BRANCH}.local)
+  --gce-project-id=<gce_project_name>     in GCE environment, which project ID to use
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
+  --list-targets                          show available deployment targets
 
 Provisioner can be one of minikube, terraform.
 """
@@ -29,10 +30,10 @@ import platform
 
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
-from .environment import setup_environment
+from .environment import (setup_environment, get_vault_token)
 from .cluster import provision_cluster
 from .landscaper import deploy_helm_charts
-from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_region_for_project_and_branch_deployment)
+from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_region_for_project_and_branch_deployment, list_deploy_targets, eprint)
 from .kubernetes import kubernetes_set_context
 # from .vault import gke_get_region_for_project_name
 from . import verify
@@ -76,6 +77,10 @@ def main():
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner,
                                                     gce_project_name,
                                                     git_branch_name)
+    # All deployment information is stored in Vault
+    eprint('- setting VAULT_TOKEN in environment')
+    os.environ['VAULT_TOKEN'] = get_vault_token(k8s_provisioner)
+
     if args['deploy']:
         provision_cluster(provisioner=k8s_provisioner, dns_domain=cluster_domain, project_id=gce_project_name, git_branch=git_branch_name)
 
@@ -83,8 +88,10 @@ def main():
         deploy_helm_charts(k8s_provisioner, git_branch_name)
     # local tool setup
     elif args['environment']:
-        setup_environment(os_type, k8s_provisioner)
-
+        if args['--list-targets']:
+            list_deploy_targets()
+        else:
+            setup_environment(os_type, k8s_provisioner)
 if __name__ == "__main__":
     main()
 

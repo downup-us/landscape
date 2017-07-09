@@ -15,7 +15,6 @@ import hvac
 import yaml
 
 from .kubernetes import kubernetes_get_context
-from .environment import get_vault_token
 
 def deploy_helm_charts(kubernetes_provisioner, git_branch):
     """
@@ -27,15 +26,12 @@ def deploy_helm_charts(kubernetes_provisioner, git_branch):
 
     Returns: None
     """
-    print('- setting VAULT_TOKEN in environment')
-    os.environ['VAULT_TOKEN'] = get_vault_token(kubernetes_provisioner)
     print('- deploying helm charts')
     deploy_chart_set('charts_core', git_branch)
     if kubernetes_provisioner == 'minikube':
         deploy_chart_set('charts_minikube', git_branch)
     elif kubernetes_provisioner == 'terraform':
         print("no terraform-specific charts yet")
-
 
 
 def deploy_chart_set(chart_set_dir, git_branch):

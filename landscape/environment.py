@@ -7,6 +7,7 @@ import os
 
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
+from .utils import eprint
 
 def setup_environment(local_system_os, environment_provisioner):
     """
@@ -71,7 +72,7 @@ def get_vault_token(vault_provisioner):
         'terraform': 'export VAULT_ADDR=https://http.vault.svc.{0} && ' + \
                         'vault auth {1}'
     }
-    print('- getting Vault auth token for provisioner: ' + vault_provisioner)
+    eprint('- getting Vault auth token for provisioner: ' + vault_provisioner)
     get_token_cmd = VAULT_TOKEN_CMD_FOR_ENV[vault_provisioner]
     proc = subprocess.Popen(get_token_cmd, stdout=subprocess.PIPE, shell=True)
     vault_auth_token = proc.stdout.read().rstrip().decode()
