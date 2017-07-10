@@ -43,6 +43,8 @@ setup:
 environment:
 	python3 -m venv ve 
 	source ve/bin/activate
+	which python
+	which pip
 	pip install --upgrade .
 	landscape environment
 
