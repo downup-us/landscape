@@ -1,7 +1,5 @@
 import subprocess
 import sys
-import os
-import hvac
 
 def kubernetes_get_context():
     get_context_cmd = "kubectl config current-context"

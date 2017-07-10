@@ -1,7 +1,7 @@
 import subprocess
 
 from . import THIRD_PARTY_TOOL_OPTIONS
-from .cluster import start_command_for_provisioner
+# from .cluster import start_command_for_provisioner
 
 def apply_minikube_cluster(dns_domain):
     """

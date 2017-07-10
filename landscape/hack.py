@@ -1,3 +1,5 @@
+import subprocess
+
 def wide_open_security():
     """
     Temporary work-around until ClusterRole RBAC is implemented

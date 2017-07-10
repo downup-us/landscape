@@ -40,7 +40,7 @@ setup:
 
 
 environment:
-	virtualenv ve 
+	python3 -m venv ve 
 	. ve/bin/activate
 	pip install --upgrade .
 	landscape environment

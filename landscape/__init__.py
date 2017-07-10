@@ -64,5 +64,8 @@ THIRD_PARTY_TOOL_OPTIONS = {
     },
     'kubectl': {
         'version': '1.6.4'
+    },
+    'vault': {
+        'version': '0.7.3'
     }
 }
