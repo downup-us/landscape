@@ -12,8 +12,6 @@ def apply_terraform_cluster(dns_domain, project_id, template_dir, git_branch_nam
                    In GKE environment, must be cluster.local
     Returns: post-execute command for terraform credentials init
     """
-    print("project_id={0}".format(project_id))
-    credentials_cmd = 'terraform output get-credentials-command'
     dns_check_succeeds = test_dns_domain('terraform', dns_domain)
     if dns_check_succeeds:
         terraform_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['terraform']['init_cmd_template']
@@ -22,10 +20,20 @@ def apply_terraform_cluster(dns_domain, project_id, template_dir, git_branch_nam
         failed_to_apply_terraform = subprocess.call(terraform_cmd, cwd=template_dir, shell=True)
         if failed_to_apply_terraform:
             sys.exit('ERROR: terraform command failed')
-        print('  - obtaining terraform credentials with command: ' + terraform_cmd)
-        subprocess.call(credentials_cmd, cwd=template_dir, shell=True)
     else:
         err_msg = "ERROR: DNS validation failed for {}".format(dns_domain)
         sys.exit(err_msg)
 
 
+def get_gke_credentials():
+    """
+    Pull GKE kubernetes credentials from GCE
+    """
+    credentials_cmd = 'terraform output get-credentials-command'
+    print('  - obtaining terraform script with command: ' + credentials_cmd)
+    proc = subprocess.Popen(credentials_cmd, stdout=subprocess.PIPE, shell=True)
+    get_credentials_command = proc.stdout.read().rstrip().decode()
+    print('  - getting credentials with command: ' + get_credentials_command)
+    failed_to_set_creds = subprocess.call(get_credentials_command, cwd=template_dir, shell=True)
+    if failed_to_set_creds:
+        sys.exit('ERROR: failed to set credentials pulled from gce')

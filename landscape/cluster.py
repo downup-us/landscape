@@ -21,22 +21,31 @@ import os
 
 def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
     """
-    initializes a cluster
+    initializes a cluster with Helm's tiller
 
     Arguments:
       provisioner: minikube or terraform
 
+    Returns:
+      None, but kubectl context has possibly changed
+            and Tiller has been installed
     """
 
     tf_templates_dir = './terraform'
-    print("Converging cluster")
-    # Start cluster
+    print('Converging cluster using:')
+    print("- Provisioner: {0} ".format(provisioner))
+    print("- GCE project ID: {0} ".format(project_id))
+    print("- Cluster is named {0} ".format(git_branch))
+    print("-    by convention using landscape branch ".format(git_branch))
+    print("- DNS Domain: {0} ".format(dns_domain))
+    # terraform/GCE/GKE cluster
     if provisioner == 'terraform':
         zone = gce_get_zone_for_project_and_branch_deployment(project_id,
                                                                 git_branch)
         apply_terraform_cluster(dns_domain, project_id,
                                 tf_templates_dir, git_branch)
         context_name = "gke_{0}_{1}_{2}".format(project_id, zone, git_branch)
+    # local development
     elif provisioner == 'minikube':
         context_name = 'minikube'
         apply_minikube_cluster(dns_domain)
