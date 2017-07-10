@@ -21,4 +21,4 @@ class Landscape(object):
     """
     
     def __init__(self):
-        print "placeholder"
+        print("placeholder")
