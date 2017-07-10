@@ -36,7 +36,7 @@ def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
     print("- Provisioner: {0} ".format(provisioner))
     print("- GCE project ID: {0} ".format(project_id))
     print("- Cluster is named {0} ".format(git_branch))
-    print("-    by convention using landscape branch ".format(git_branch))
+    print("   - by convention using landscape branch {0}".format(git_branch))
     print("- DNS Domain: {0} ".format(dns_domain))
     # terraform/GCE/GKE cluster
     if provisioner == 'terraform':
@@ -75,26 +75,6 @@ def vault_load_gce_creds():
     else:   
         creds = creds_vault_item['data']
         credentials_json = creds['credentials']
-
-
-def hack_wide_open_security():
-    """
-    Temporary work-around until ClusterRole RBAC is implemented
-    """
-    need_crb = subprocess.call('kubectl get clusterrolebinding ' + \
-                                'permissive-binding', shell=True)
-    hack_cmd = 'kubectl create clusterrolebinding ' + \
-                                    'permissive-binding ' + \
-                                    '--clusterrole=cluster-admin ' + \
-                                    '--user=admin ' + \
-                                    '--user=kubelet ' + \
-                                    '--group=system:serviceaccounts'
-    if need_crb:
-        print('  - creating permissive clusterrolebinding')
-        print('    - running ' + hack_cmd)
-        subprocess.call(hack_cmd, shell=True)
-    else:
-        print('  - permissive clusterrolebinding already exists ' + hack_cmd)
 
 
 def apply_tiller():

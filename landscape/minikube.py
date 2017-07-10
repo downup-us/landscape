@@ -1,11 +1,13 @@
 import subprocess
 
+from . import THIRD_PARTY_TOOL_OPTIONS
+from .cluster import start_command_for_provisioner
+
 def apply_minikube_cluster(dns_domain):
     """
     creates or converges a minikube-provisioned cluster to its desired-state
 
     Arguments:
-     - provisioner: minikube or terraform
      - dns_domain: dns domain to use for cluster
 
     Returns: None
@@ -15,18 +17,17 @@ def apply_minikube_cluster(dns_domain):
     minikube_status = proc.stdout.read().rstrip().decode()
 
     if not minikube_status == 'Running':
-        start_minikube(provisioner, dns_domain)
+        start_minikube(dns_domain)
     else:
         print('  - minikube cluster previously provisioned. Re-using ')
     minikube_disable_addons()
-    hack_wide_open_security() # FIXME: create ClusterRoles
 
 
-def start_minikube(provisioner, dns_domain):
+def start_minikube(dns_domain):
     """
     Starts minikube. Prints an error if non-zero exit status
     """
-    k8s_provision_command = start_command_for_provisioner(provisioner, dns_domain)
+    k8s_provision_command = start_command_for_provisioner('minikube', dns_domain)
     print('  - running ' + k8s_provision_command)
     minikube_failed = subprocess.call(k8s_provision_command, shell=True)
     if minikube_failed:

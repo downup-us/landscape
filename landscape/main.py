@@ -36,7 +36,8 @@ from .cluster import deploy_cluster
 from .landscaper import deploy_helm_charts
 from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_targets, eprint)
 from .kubernetes import kubectl_use_context
-# from .vault import gke_get_region_for_project_name
+from .hack import wide_open_security
+
 from . import verify
 from . import report
 from . import purge
@@ -75,6 +76,7 @@ def main():
     if args['deploy']:
         # deploy cluster and initialize Helm's tiller pod
         deploy_cluster(provisioner=k8s_provisioner, project_id=gce_project_name, git_branch=git_branch_name, dns_domain=cluster_domain)
+        wide_open_security() # fix until RBAC ClusterRoles are in place
         deploy_helm_charts(k8s_provisioner, git_branch_name)
     # local tool setup
     elif args['environment']:

@@ -15,6 +15,7 @@ import hvac
 import yaml
 
 from .kubernetes import kubernetes_get_context
+from .helm import helm_repo_update
 
 def deploy_helm_charts(kubernetes_provisioner, git_branch):
     """
@@ -26,12 +27,13 @@ def deploy_helm_charts(kubernetes_provisioner, git_branch):
 
     Returns: None
     """
+    helm_repo_update()
     print('- deploying helm charts')
     deploy_chart_set('charts_core', git_branch)
     if kubernetes_provisioner == 'minikube':
         deploy_chart_set('charts_minikube', git_branch)
     elif kubernetes_provisioner == 'terraform':
-        print("no terraform-specific charts yet")
+        deploy_chart_set('charts_gke', git_branch)
 
 
 def deploy_chart_set(chart_set_dir, git_branch):
