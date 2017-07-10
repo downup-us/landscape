@@ -40,10 +40,10 @@ setup:
 
 
 environment:
-	landscape environment
+	echo landscape environment
 
 test: environment
-	landscape test
+	echo landscape test
 
 verify:
 	# disable until functional/useful
