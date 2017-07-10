@@ -20,7 +20,7 @@ def install_program(program_name, program_version, os_platform):
 		'lastpass': {
 			'Darwin': 'which lpass > /dev/null || (brew update && ' + \
 						'brew install lastpass-cli --with-pinentry)',
-			'Linux': 'which lpass > /dev/null || apt-get update && apt-get install openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses xclip cmake build-essential pkg-config'
+			'Linux': 'which lpass > /dev/null || (apt-get update && apt-get install openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses xclip cmake build-essential pkg-config)'
 		},
 		'vault': {
 			'Darwin': 'which vault > /dev/null || (curl -LO ' + \
