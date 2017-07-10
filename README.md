@@ -30,6 +30,17 @@ make PROVISIONER=minikube
 make PROVISIONER=terraform GCE_PROJECT_ID=staging-123456
 ```
 
+## Deployment kubeconfig
+ - gcloud container clusters get-credentials <cluster_name> format
+          gke_staging-123456_us-west1-a_master
+              |-project id-| |- zone -| |branch|
+    branch name is context name
+
+    this is used for commands:
+```
+gcloud --project=staging-123456 container clusters get-credentials master --zone=us-west1-a && kubectl config use-context master
+```
+
 ## Jenkins deployment
 see Jenkinsfile in repo
 

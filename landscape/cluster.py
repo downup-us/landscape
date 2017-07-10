@@ -11,12 +11,13 @@ Limitations: git branch name stored in Vault as key.
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .environment import set_gce_credentials
 from .terraform import apply_terraform_cluster
+from .minikube import apply_minikube_cluster
 import subprocess
 import sys
 import time
 import os
 
-def provision_cluster(provisioner, dns_domain, project_id, git_branch):
+def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
     """
     initializes a cluster
 
@@ -27,48 +28,9 @@ def provision_cluster(provisioner, dns_domain, project_id, git_branch):
     tf_templates_dir = './terraform'
     print("Converging cluster")
     # Start cluster
-    if provisioner == 'minikube':
-        print('Applying minikube cluster')
-        apply_minikube_cluster(provisioner, dns_domain)
-    if provisioner == 'terraform':
-        print('Applying terraform cluster')
-        print("proj_id={0}".format(project_id))
-        apply_terraform_cluster(provisioner, dns_domain, project_id, tf_templates_dir, git_branch)
+    deploy_cluster(provisioner, dns_domain, project_id, tf_templates_dir, git_branch)
     # Provision Helm Tiller
     apply_tiller()
-
-
-def apply_minikube_cluster(provisioner, dns_domain):
-    """
-    creates or converges a minikube-provisioned cluster to its desired-state
-
-    Arguments:
-     - provisioner: minikube or terraform
-     - dns_domain: dns domain to use for cluster
-
-    Returns: None
-    """
-    minikube_status_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['minikube_status_cmd']
-    proc = subprocess.Popen(minikube_status_cmd, stdout=subprocess.PIPE, shell=True)
-    minikube_status = proc.stdout.read().rstrip().decode()
-
-    if not minikube_status == 'Running':
-        start_minikube(provisioner, dns_domain)
-    else:
-        print('  - minikube cluster previously provisioned. Re-using ')
-    minikube_disable_addons()
-    hack_wide_open_security() # FIXME: create ClusterRoles
-
-
-def start_minikube(provisioner, dns_domain):
-    """
-    Starts minikube. Prints an error if non-zero exit status
-    """
-    k8s_provision_command = start_command_for_provisioner(provisioner, dns_domain)
-    print('  - running ' + k8s_provision_command)
-    minikube_failed = subprocess.call(k8s_provision_command, shell=True)
-    if minikube_failed:
-        sys.exit('ERROR: minikube failure')
 
 
 def vault_load_gce_creds():
@@ -90,18 +52,6 @@ def vault_load_gce_creds():
     else:   
         creds = creds_vault_item['data']
         credentials_json = creds['credentials']
-
-
-def minikube_disable_addons():
-    """
-    Disable default add-ons for minikube that we are replacing with helm deploys
-    """
-    disable_addons_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['minikube_addons_disable_cmd']
-    print('- disabling unused minikube addons ' + disable_addons_cmd)
-    print('  - running ' + disable_addons_cmd)
-    failed_to_disable_addons = subprocess.call(disable_addons_cmd, shell=True)
-    if failed_to_disable_addons:
-        print('ERROR: failed to disable addons')
 
 
 def hack_wide_open_security():
@@ -129,7 +79,7 @@ def apply_tiller():
     Checks if Tiller is already installed. If not, install it.
     """
     helm_provision_command = 'helm init'
-    print('  - running command: ' + helm_provision_command)
+    print('  - initializing Tiller with command: ' + helm_provision_command)
     subprocess.call(helm_provision_command, shell=True)
 
     print('  - waiting for tiller pod to be ready')
@@ -164,9 +114,3 @@ def start_command_for_provisioner(provisioner_name, dns_domain_name):
         start_cmd = start_cmd_template.format(dns_domain_name)
     return start_cmd
 
-
-def deploy(provisioner='minikube'):
-    """
-    Deploy a cluster
-    """
-    print("placeholder for breaking out minikube vs terraform")

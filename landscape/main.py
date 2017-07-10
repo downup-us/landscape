@@ -3,7 +3,7 @@
 """landscape: deploy Helm charts
 
 Usage:
-  landscape deploy [--provisioner=<provisioner] [--cluster-domain=<domain>] [--gce-project-id=<gce_project_name>]
+  landscape deploy [--provisioner=<provisioner] [--gce-project-id=<gce_project_name>] [--landscape-branch=<git_branch>] [--cluster-domain=<domain>]
   landscape environment [--list-targets]
   landscape test
   landscape verify
@@ -18,6 +18,7 @@ Options:
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
   --list-targets                          show available deployment targets
+  --landscape-branch=<git_branch>         Helm / Landscaper charts branch to deploy (dev vs. master, etc.)
 
 Provisioner can be one of minikube, terraform.
 """
@@ -31,10 +32,10 @@ import platform
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
 from .environment import (setup_environment, get_vault_token)
-from .cluster import provision_cluster
+from .cluster import deploy_cluster
 from .landscaper import deploy_helm_charts
 from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_region_for_project_and_branch_deployment, list_deploy_targets, eprint)
-from .kubernetes import kubernetes_set_context
+from .kubernetes import kubernetes_apply_credentials, kubernetes_set_context
 # from .vault import gke_get_region_for_project_name
 from . import verify
 from . import report
@@ -43,23 +44,14 @@ from . import csr
 
 
 def main():
-    # terraform
-    # a gce deployment is composed of
-    #  - project name
-    #
-    # a gke deployment is composed of:
-    #  - branch name
-
     # branch is used to pull secrets from Vault, and to distinguish clusters
     git_branch_name = git_get_branch()
 
     args = docopt.docopt(__doc__)
     
-    # install tools for this platform
-    os_type = platform.system() # 'Darwin'
+    os_type = platform.system() # e.g. 'Darwin'
 
     # Which kubernetes provisioner to use.
-    # Valid parameters: minikube, terraform (GKE)
     k8s_provisioner  = args['--provisioner']
     
     # Project name to deploy. Must be in Vault
@@ -67,13 +59,14 @@ def main():
 
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
+
     # Cluster DNS domain inside containers' /etc/resolv.conf
     if not cluster_domain:
         cluster_domain = git_branch_name + '.local'
         # GKE requires 'cluster.local' as DNS domain
         if k8s_provisioner == 'terraform':
             cluster_domain = 'cluster.local'
-        
+    
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner,
                                                     gce_project_name,
                                                     git_branch_name)
@@ -82,9 +75,18 @@ def main():
     os.environ['VAULT_TOKEN'] = get_vault_token(k8s_provisioner)
 
     if args['deploy']:
-        provision_cluster(provisioner=k8s_provisioner, dns_domain=cluster_domain, project_id=gce_project_name, git_branch=git_branch_name)
+        # deploy cluster and initialize Helm's tiller pod
+        cfgfilename = "config-{0}".format(k8s_context)
+        kubeconfig = "$HOME/.kube/{0}".format(cfgfilename)
+        print("kubeconfig={0}".format(kubeconfig))
+        os.environ['KUBECONFIG'] = kubeconfig
+        kubernetes_set_context(git_branch_name)
 
-        kubernetes_set_context(k8s_context)
+        deploy_cluster(provisioner=k8s_provisioner, project_id=gce_project_name, git_branch=git_branch_name, dns_domain=cluster_domain)
+
+        # set local context for future commands
+        kubernetes_apply_credentials(k8s_context)
+
         deploy_helm_charts(k8s_provisioner, git_branch_name)
     # local tool setup
     elif args['environment']:

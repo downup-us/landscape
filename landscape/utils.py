@@ -38,17 +38,22 @@ def valid_cluster_domain(domain):
     """
     return re.match('[a-z]{1,63}\.local', domain)
 
-def gce_get_region_for_project_and_branch_deployment(gce_project, git_branch):
+
+def gce_get_zone_for_project_and_branch_deployment(gce_project, git_branch):
   """
-  Returns a region based on the gce_project + git_branch of a GCE deployment
+  Reads zone from Vault based on gce_project + git_branch of a GCE deployment.
   """
   return 'us-west1-a'
 
 
 def get_k8s_context_for_provisioner(provisioner, project_name, git_branch_name):
+    """
+    Generate a kube context name like what GCE gives in 
+    'gcloud --project=staging-123456 container clusters get-credentials master'
+    e.g., gke_staging-165617_us-west1-a_master
+    """
     if provisioner == 'terraform':
-      git_branch_name = 'master'
-      region = gce_get_region_for_project_and_branch_deployment(project_name, git_branch_name)
+      region = gce_get_zone_for_project_and_branch_deployment(project_name, git_branch_name)
       return "gke_{0}_{1}_{2}".format(project_name, region, git_branch_name)
     else:
       # covers minikube

@@ -69,8 +69,7 @@ def get_vault_token(vault_provisioner):
     VAULT_TOKEN_CMD_FOR_ENV = {
         'minikube': 'docker logs dev-vault 2>&1 | grep Root\ Token | ' + \
                         'tail -n 1 | awk \'{ print $3 }\'',
-        'terraform': 'export VAULT_ADDR=https://http.vault.svc.{0} && ' + \
-                        'vault auth {1}'
+        'terraform': 'echo "not setting VAULT_ADDR in terraform environment"'
     }
     eprint('- getting Vault auth token for provisioner: ' + vault_provisioner)
     get_token_cmd = VAULT_TOKEN_CMD_FOR_ENV[vault_provisioner]

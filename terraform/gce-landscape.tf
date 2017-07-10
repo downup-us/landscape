@@ -254,7 +254,7 @@ resource "google_container_cluster" "cluster1" {
 }
 
 output "get-credentials-command" {
-  value = "KUBECONFIG=$HOME/.kube/config-${var.gce_project_id}-${var.gke_cluster1_name} GOOGLE_CREDENTIALS='${data.vault_generic_secret.deploy_base.data["credentials"]}' gcloud --project=${var.gce_project_id} container clusters get-credentials ${var.gke_cluster1_name} --zone=${data.vault_generic_secret.deploy_base.data["region"]}-a && echo kubectl config use-context ${var.gke_cluster1_name}"
+  value = "KUBECONFIG=$HOME/.kube/config-${var.gce_project_id} GOOGLE_CREDENTIALS='${data.vault_generic_secret.deploy_base.data["credentials"]}' gcloud --project=${var.gce_project_id} container clusters get-credentials ${var.gke_cluster1_name} --zone=${data.vault_generic_secret.deploy_base.data["region"]}-a && kubectl config use-context ${var.gke_cluster1_name}"
 }
 
 output "creds" {
