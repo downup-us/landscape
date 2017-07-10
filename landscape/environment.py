@@ -27,7 +27,7 @@ def setup_environment(local_system_os, environment_provisioner):
 
     # custom environment per-provisioner type
     if environment_provisioner == 'minikube':
-        if not os.environ['JENKINS_SECRET']:
+        if not 'JENKINS_SECRET' in os.environ:
             setup_provisioner_minikube()
     elif environment_provisioner == 'terraform':
         setup_provisioner_terraform()
