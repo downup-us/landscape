@@ -106,13 +106,13 @@ def install_program(program_name, program_version, os_platform):
 			'Darwin': 'which minikube > /dev/null || (curl -Lo minikube ' + \
 						'https://storage.googleapis.com/minikube/' + \
 						'releases/v{version}/minikube-{platform}-amd64 && ' + \
-						'chmod +x minikube && ' + \
-						'mv minikube /usr/local/bin/)',
+						'chmod +x minikube-{platform}-amd64 && ' + \
+						'mv minikube-{platform}-amd64 /usr/local/bin/minikube)',
 			'Linux': 'which minikube > /dev/null || (curl -Lo minikube ' + \
 						'https://storage.googleapis.com/minikube/' + \
 						'releases/v{version}/minikube-{platform}-amd64 && ' + \
-						'chmod +x minikube && ' + \
-						'mv minikube /usr/local/bin/)'
+						'chmod +x minikube-{platform}-amd64 && ' + \
+						'mv minikube-{platform}-amd64 /usr/local/bin/minikube)'
 		},
 
 	}
