@@ -4,6 +4,7 @@
 ###
 import subprocess
 import os
+import sys
 
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
