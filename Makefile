@@ -40,9 +40,6 @@ setup:
 
 
 environment:
-	python3 -m venv ve 
-	. ve/bin/activate
-	pip install --upgrade .
 	landscape environment
 
 test: environment
