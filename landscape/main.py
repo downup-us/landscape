@@ -31,11 +31,11 @@ import platform
 
 from . import THIRD_PARTY_TOOL_OPTIONS
 from .setup import install_prerequisites
-from .environment import (setup_environment, get_vault_token)
+from .environment import setup_environment
 from .cluster import deploy_cluster
 from .landscaper import deploy_helm_charts
-from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_region_for_project_and_branch_deployment, list_deploy_targets, eprint)
-from .kubernetes import kubernetes_apply_credentials, kubernetes_set_context
+from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_targets, eprint)
+from .kubernetes import kubectl_use_context
 # from .vault import gke_get_region_for_project_name
 from . import verify
 from . import report
@@ -71,22 +71,10 @@ def main():
                                                     gce_project_name,
                                                     git_branch_name)
     # All deployment information is stored in Vault
-    eprint('- setting VAULT_TOKEN in environment')
-    os.environ['VAULT_TOKEN'] = get_vault_token(k8s_provisioner)
 
     if args['deploy']:
         # deploy cluster and initialize Helm's tiller pod
-        cfgfilename = "config-{0}".format(k8s_context)
-        kubeconfig = "$HOME/.kube/{0}".format(cfgfilename)
-        print("kubeconfig={0}".format(kubeconfig))
-        os.environ['KUBECONFIG'] = kubeconfig
-        kubernetes_set_context(git_branch_name)
-
         deploy_cluster(provisioner=k8s_provisioner, project_id=gce_project_name, git_branch=git_branch_name, dns_domain=cluster_domain)
-
-        # set local context for future commands
-        kubernetes_apply_credentials(k8s_context)
-
         deploy_helm_charts(k8s_provisioner, git_branch_name)
     # local tool setup
     elif args['environment']:

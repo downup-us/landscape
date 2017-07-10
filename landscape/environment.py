@@ -58,26 +58,6 @@ def start_local_dev_vault():
         start_dev_vault_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['dev_vault_init_cmd']
         subprocess.call(start_dev_vault_cmd, shell=True)
 
-def get_vault_token(vault_provisioner):
-    """
-    Auths against local dev-vault and sets VAULT_TOKEN in shell
-
-    Arguments: None
-
-    Returns: Vault auth token pulled from docker's logs
-    """
-    VAULT_TOKEN_CMD_FOR_ENV = {
-        'minikube': 'docker logs dev-vault 2>&1 | grep Root\ Token | ' + \
-                        'tail -n 1 | awk \'{ print $3 }\'',
-        'terraform': 'echo "not setting VAULT_ADDR in terraform environment"'
-    }
-    eprint('- getting Vault auth token for provisioner: ' + vault_provisioner)
-    get_token_cmd = VAULT_TOKEN_CMD_FOR_ENV[vault_provisioner]
-    proc = subprocess.Popen(get_token_cmd, stdout=subprocess.PIPE, shell=True)
-    vault_auth_token = proc.stdout.read().rstrip().decode()
-
-    return vault_auth_token
-
 def helm_add_chart_repos(repos):
     """
     Adds helm chart repos to current user

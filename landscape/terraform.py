@@ -8,15 +8,13 @@ def apply_terraform_cluster(dns_domain, project_id, template_dir, git_branch_nam
     creates or converges a terraform-provisioned cluster to its desired-state
 
     Arguments:
-     - provisioner: minikube or terraform
      - dns_domain: dns domain to use for cluster
                    In GKE environment, must be cluster.local
     Returns: post-execute command for terraform credentials init
     """
-    print("APPLYING")
     print("project_id={0}".format(project_id))
     credentials_cmd = 'terraform output get-credentials-command'
-    dns_check_succeeds = test_dns_domain(provisioner, dns_domain)
+    dns_check_succeeds = test_dns_domain('terraform', dns_domain)
     if dns_check_succeeds:
         terraform_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['terraform']['init_cmd_template']
         terraform_cmd = terraform_cmd_tmpl.format(project_id, git_branch_name)

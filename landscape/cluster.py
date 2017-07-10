@@ -12,6 +12,8 @@ from . import THIRD_PARTY_TOOL_OPTIONS
 from .environment import set_gce_credentials
 from .terraform import apply_terraform_cluster
 from .minikube import apply_minikube_cluster
+from .utils import gce_get_zone_for_project_and_branch_deployment
+from .kubernetes import kubectl_use_context
 import subprocess
 import sys
 import time
@@ -25,10 +27,22 @@ def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
       provisioner: minikube or terraform
 
     """
+
     tf_templates_dir = './terraform'
     print("Converging cluster")
     # Start cluster
-    deploy_cluster(provisioner, dns_domain, project_id, tf_templates_dir, git_branch)
+    if provisioner == 'terraform':
+        zone = gce_get_zone_for_project_and_branch_deployment(project_id,
+                                                                git_branch)
+        apply_terraform_cluster(dns_domain, project_id,
+                                tf_templates_dir, git_branch)
+        context_name = "gke_{0}_{1}_{2}".format(project_id, zone, git_branch)
+    elif provisioner == 'minikube':
+        context_name = 'minikube'
+        apply_minikube_cluster(dns_domain)
+
+    # Set local context to just deployed/converged cluster
+    kubectl_use_context(context_name)
     # Provision Helm Tiller
     apply_tiller()
 
