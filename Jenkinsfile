@@ -29,6 +29,7 @@ pipeline {
             steps {
                 echo "using git branch: ${env.BRANCH_NAME}"
                 echo "using clusterDomain: ${env.BRANCH_NAME}.local"
+                sh "git checkout ${git_branch}"
                 sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} environment"
             }
         }
