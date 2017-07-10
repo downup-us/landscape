@@ -9,6 +9,7 @@
 #
 # Usage:
 #  make PROVISIONER=[ minikube | terraform ] [GCE_PROJECT=myproj-123456] deploy
+SHELL := /bin/bash
 
 PROVISIONER := minikube
 
@@ -40,10 +41,13 @@ setup:
 
 
 environment:
-	echo landscape environment
+	python3 -m venv ve 
+	source ve/bin/activate
+	pip install --upgrade .
+	landscape environment
 
 test: environment
-	echo landscape test
+	landscape test
 
 verify:
 	# disable until functional/useful
