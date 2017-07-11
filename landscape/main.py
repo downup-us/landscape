@@ -18,7 +18,7 @@ Options:
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
   --list-targets                          show available deployment targets
-  --landscape-branch=<git_branch>         Helm / Landscaper charts branch to deploy (dev vs. master, etc.)
+  --landscape-branch=<git_branch>         Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
 
 Provisioner can be one of minikube, terraform.
 """
@@ -34,7 +34,7 @@ from .setup import install_prerequisites
 from .environment import setup_environment
 from .cluster import deploy_cluster
 from .landscaper import deploy_helm_charts
-from .utils import (git_get_branch, get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_targets, eprint)
+from .utils import (get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_targets, eprint)
 from .kubernetes import kubectl_use_context
 from .hack import wide_open_security
 
@@ -46,8 +46,6 @@ from . import csr
 
 def main():
     # branch is used to pull secrets from Vault, and to distinguish clusters
-    git_branch_name = git_get_branch()
-
     args = docopt.docopt(__doc__)
     
     os_type = platform.system() # e.g. 'Darwin'
@@ -57,6 +55,9 @@ def main():
     
     # Project name to deploy. Must be in Vault
     gce_project_name = args['--gce-project-id']
+
+    # which branch to deploy (used for Vault key lookup)
+    git_branch_name = args['--landscape-branch']
 
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
