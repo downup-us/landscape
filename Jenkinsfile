@@ -14,15 +14,16 @@ def getTargets() {
     }
 }
 
-def getClusterDomain() {
-    return "grep search /etc/resolv.conf | awk '{ print $NF }'".execute().text
+def getVaultAddress() {
+    domain = "grep search /etc/resolv.conf | awk '{ print $NF }'".execute().text
+    return "https://http.vault.svc." + domain + ":8200"
 }
 
 pipeline {
     agent any
 
     environment {
-        VAULT_ADDR     = "https://http.vault.svc." + getClusterDomain() + ":8200"
+        VAULT_ADDR     = getVaultAddress()
         VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     }
 
