@@ -8,14 +8,9 @@ def possible_provisioner_targets="landscape environment --list-targets".execute(
 pipeline {
     agent any
 
-    withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                      credentialsId: 'vault',
-                      usernameVariable: 'VAULT_USER',
-                      passwordVariable: 'VAULT_PASSWORD']]) {
-        environment {
-            VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
-            VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-        }
+    environment {
+        VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
+        VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     }
 
     options {
