@@ -8,11 +8,16 @@ def possible_provisioner_targets="landscape environment --list-targets".execute(
 pipeline {
     agent any
 
-    environment {
-        VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
-        VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-        VAULT_TOKEN    = sh (
-            script: 'vault auth -method=ldap username=${env.CREDENTIALS_VAULT_USER} password=${env.CREDENTIALS_VAULT_PASSWORD} 2>&1 > /dev/null && vault read -field id auth/token/lookup-self', returnStdout: true).trim()
+    withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                      credentialsId: 'vault',
+                      usernameVariable: 'VAULT_USER',
+                      passwordVariable: 'VAULT_PASSWORD']]) {
+        environment {
+            VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
+            VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            VAULT_TOKEN    = sh (
+                script: 'vault auth -method=ldap username=${env.CREDENTIALS_VAULT_USER} password=${env.CREDENTIALS_VAULT_PASSWORD} 2>&1 > /dev/null && vault read -field id auth/token/lookup-self', returnStdout: true).trim()
+        }
     }
 
     options {
