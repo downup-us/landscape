@@ -10,6 +10,7 @@
 # Usage:
 #  make PROVISIONER=[ minikube | terraform ] [GCE_PROJECT=myproj-123456] deploy
 SHELL := /bin/bash
+export PATH := $(PATH):/usr/local/bin
 
 PROVISIONER := minikube
 
