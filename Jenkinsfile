@@ -2,7 +2,7 @@
 
 def git_branch     = "${env.BRANCH_NAME}"
 def cluster_domain = "${env.BRANCH_NAME}.local"
-def vault_token    = ""
+
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
 pipeline {
@@ -15,8 +15,6 @@ pipeline {
         environment {
             VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
             VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-            VAULT_TOKEN    = sh (
-                script: 'vault auth -method=ldap username=${env.CREDENTIALS_VAULT_USER} password=${env.CREDENTIALS_VAULT_PASSWORD} 2>&1 > /dev/null && vault read -field id auth/token/lookup-self', returnStdout: true).trim()
         }
     }
 
@@ -55,8 +53,7 @@ pipeline {
                                   usernameVariable: 'VAULT_USER',
                                   passwordVariable: 'VAULT_PASSWORD']]) {
                     sh "echo vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null"
-                    sh "export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self)"
-                    sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} deploy"
+                    sh "export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} deploy"
                 }
             }
         }
