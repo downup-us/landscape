@@ -50,7 +50,7 @@ environment:
 
 test: environment
 	( \
-		source ve/bin/activate
+		source ve/bin/activate; \
 		landscape test; \
 	)
 
