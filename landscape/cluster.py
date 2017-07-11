@@ -81,39 +81,37 @@ def apply_tiller():
     """
     Checks if Tiller is already installed. If not, install it.
     """
+    tiller_pod_status_cmd = THIRD_PARTY_TOOL_OPTIONS['helm']['monitor_tiller_cmd']
+    print('Checking tiller status with command: ' + tiller_pod_status_cmd)
+
+    proc = subprocess.Popen(tiller_pod_status_cmd, stdout=subprocess.PIPE, shell=True)
+    tiller_pod_status = proc.stdout.read().rstrip().decode()
+
+    # if Tiller isn't initialized, wait for it to come up
+    if not tiller_pod_status == "Running":
+        print('  - did not detect tiller pod')
+        init_tiller(tiller_pod_status_cmd)
+    else:
+        print('  - detected running tiller pod')
+
+def init_tiller(wait_tiller_ready_cmd):
     helm_provision_command = 'helm init'
     print('  - initializing Tiller with command: ' + helm_provision_command)
     subprocess.call(helm_provision_command, shell=True)
+    wait_for_tiller_ready(wait_tiller_ready_cmd)
+
+
+def wait_for_tiller_ready(monitor_command):
+    proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, shell=True)
+    tiller_pod_status = proc.stdout.read().rstrip().decode()
 
     print('  - waiting for tiller pod to be ready')
-    tiller_pod_status = 'Unknown'
-    tiller_pod_status_cmd = THIRD_PARTY_TOOL_OPTIONS['helm']['monitor_tiller_cmd']
-    devnull = open(os.devnull, 'w')
-    print(tiller_pod_status_cmd)
+    warm_up_seconds = 5
     while tiller_pod_status != "Running":
-        proc = subprocess.Popen(tiller_pod_status_cmd, stdout=subprocess.PIPE, stderr=devnull, shell=True)
+        proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, shell=True)
         tiller_pod_status = proc.stdout.read().rstrip().decode()
         sys.stdout.write('.')
         sys.stdout.flush()
         time.sleep(1) 
-    print('  - sleeping to allow tiller to warm-up')
-    time.sleep(3)
-
-
-def start_command_for_provisioner(provisioner_name, dns_domain_name):
-    """
-    generate a command to start/converge a cluster
-
-    """
-    print('Using provisioner: ' + provisioner_name)
-    if provisioner_name in THIRD_PARTY_TOOL_OPTIONS:
-        start_cmd_template = THIRD_PARTY_TOOL_OPTIONS[provisioner_name]['init_cmd_template']
-    else:
-        sys.exit("provisioner must be minikube or terraform")
-
-    if provisioner_name == "minikube":
-        start_cmd = start_cmd_template.format(dns_domain_name, "xhyve")
-    elif provisioner_name == "terraform":
-        start_cmd = start_cmd_template.format(dns_domain_name)
-    return start_cmd
-
+    print("  - sleeping {0} to allow tiller to warm-up".format(warm_up_seconds))
+    time.sleep(warm_up_seconds)

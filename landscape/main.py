@@ -76,7 +76,7 @@ def main():
     if args['deploy']:
         # deploy cluster and initialize Helm's tiller pod
         deploy_cluster(provisioner=k8s_provisioner, project_id=gce_project_name, git_branch=git_branch_name, dns_domain=cluster_domain)
-        wide_open_security() # fix until RBAC ClusterRoles are in place
+        wide_open_security() # workaround until RBAC ClusterRoles are in place
         deploy_helm_charts(k8s_provisioner, git_branch_name)
     # local tool setup
     elif args['environment']:

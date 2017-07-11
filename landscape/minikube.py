@@ -1,7 +1,6 @@
 import subprocess
 
 from . import THIRD_PARTY_TOOL_OPTIONS
-# from .cluster import start_command_for_provisioner
 
 def apply_minikube_cluster(dns_domain):
     """
@@ -27,7 +26,8 @@ def start_minikube(dns_domain):
     """
     Starts minikube. Prints an error if non-zero exit status
     """
-    k8s_provision_command = start_command_for_provisioner('minikube', dns_domain)
+    mk_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['minikube']['init_cmd_template']
+    k8s_provision_command = mk_cmd_tmpl.format(dns_domain, "xhyve")
     print('  - running ' + k8s_provision_command)
     minikube_failed = subprocess.call(k8s_provision_command, shell=True)
     if minikube_failed:

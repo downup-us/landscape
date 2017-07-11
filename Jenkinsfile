@@ -3,6 +3,9 @@
 def git_branch     = "${env.BRANCH_NAME}"
 def cluster_domain = "${env.BRANCH_NAME}.local"
 
+# Prepare available environments as parameters
+def possible_provisioner_targets="landscape environment --list-targets".execute().text
+
 pipeline {
     agent any
 
@@ -17,7 +20,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
-        choice(name: 'PROVISIONER', choices: "minikube\nkops\ngke\n", description: 'cluster provisioner')
+        choice(name: 'PROVISIONER', choices: possible_provisioner_targets, description: 'cluster provisioner')
     }
 
     triggers {
