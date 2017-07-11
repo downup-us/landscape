@@ -102,13 +102,14 @@ def init_tiller(wait_tiller_ready_cmd):
 
 
 def wait_for_tiller_ready(monitor_command):
-    proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, shell=True)
+    devnull = open(os.devnull, 'w')
+    proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, stderr=devnull, shell=True)
     tiller_pod_status = proc.stdout.read().rstrip().decode()
 
     print('  - waiting for tiller pod to be ready')
     warm_up_seconds = 5
     while tiller_pod_status != "Running":
-        proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, stderr=devnull, shell=True)
         tiller_pod_status = proc.stdout.read().rstrip().decode()
         sys.stdout.write('.')
         sys.stdout.flush()

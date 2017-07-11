@@ -2,7 +2,7 @@
 
 def git_branch     = "${env.BRANCH_NAME}"
 def cluster_domain = "${env.BRANCH_NAME}.local"
-
+def vault_token    = ""
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
 pipeline {
@@ -49,7 +49,7 @@ pipeline {
                                   credentialsId: 'vault',
                                   usernameVariable: 'VAULT_USER',
                                   passwordVariable: 'VAULT_PASSWORD']]) {
-                    sh "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null"
+                    sh "echo vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null"
                     sh "export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self)"
                     sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} deploy"
                 }
