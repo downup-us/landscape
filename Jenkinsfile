@@ -3,7 +3,7 @@
 def git_branch     = "${env.BRANCH_NAME}"
 def cluster_domain = "${env.BRANCH_NAME}.local"
 
-def possible_provisioner_targets=['a', 'b']
+def possible_provisioner_targets="a\nb\n"
 
 pipeline {
     agent any
