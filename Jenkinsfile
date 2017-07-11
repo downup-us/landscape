@@ -5,11 +5,24 @@ def cluster_domain = "${env.BRANCH_NAME}.local"
 
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
+def getTargets() {
+    withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                      credentialsId: 'vault',
+                      usernameVariable: 'VAULT_USER',
+                      passwordVariable: 'VAULT_PASSWORD']]) {
+        "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && landscape environment --list-targets".execute().text
+    }
+}
+
+def getClusterDomain() {
+    return "grep search /etc/resolv.conf | awk '{ print $NF }'".execute().text
+}
+
 pipeline {
     agent any
 
     environment {
-        VAULT_ADDR     = "https://http.vault.svc.${env.BRANCH_NAME}.local:8200"
+        VAULT_ADDR     = "https://http.vault.svc." + getClusterDomain() + ":8200"
         VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     }
 
@@ -19,7 +32,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
-        choice(name: 'PROVISIONER', choices: possible_provisioner_targets, description: 'cluster provisioner')
+        choice(name: 'PROVISIONER', choices: getTargets(), description: 'cluster provisioner')
     }
 
     triggers {
