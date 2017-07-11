@@ -49,10 +49,6 @@ environment:
 	)
 
 test: environment
-	( \
-		source ve/bin/activate; \
-		landscape test; \
-	)
 
 verify:
 	# disable until functional/useful
