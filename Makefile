@@ -35,37 +35,3 @@ ifeq ($(PROVISIONER),terraform)
 else
 	${DEPLOY_CMD}
 endif
-
-setup:
-	landscape setuptools
-
-
-environment:
-	( \
-		python3 -m venv ve ; \
-		source ve/bin/activate; \
-		pip install --upgrade .; \
-		landscape environment; \
-	)
-
-test: environment
-
-verify:
-	# disable until functional/useful
-	#sleep 7 # wait for kubedns to come up
-	# ./bin/verify.sh ${K8S_NAMESPACE}
-
-report:
-	landscape report ${K8S_NAMESPACE}
-
-purge:
-ifeq ($(K8S_NAMESPACE),kube-system)
-	echo "purge not supported for kube-system namespace due to problems it creates with tiller api access"
-endif
-
-ifeq ($(DELETE_ALL_DATA),true)
-	landscape purge ${K8S_NAMESPACE} $(PURGE_NAMESPACE_ITSELF)
-else
-	@echo "if you really want to purge, run \`make DELETE_ALL_DATA=true purge\`"
-	@exit 1
-endif
