@@ -3,7 +3,6 @@
 def git_branch     = "${env.BRANCH_NAME}"
 def cluster_domain = "${env.BRANCH_NAME}.local"
 
-# Prepare available environments as parameters
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
 pipeline {
