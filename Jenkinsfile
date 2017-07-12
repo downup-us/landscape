@@ -1,8 +1,9 @@
 #! /usr/bin/env groovy
+// TODO: parallelize deployments, slack notifications
 
 properties([
    parameters([
-      choice(choices: available_targets, description: 'Please select an environment', name: 'Env')
+      choice(choices: available_targets, description: 'Please select an environment', name: 'Env', pipelineTriggers([]))
    ])
 ])
 
