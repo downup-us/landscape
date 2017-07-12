@@ -16,23 +16,18 @@ def getVaultCacert() {
 
 def getTargets() {
     return "a\nb\nc\n"
-    // withCredentials([[$class: 'UsernamePasswordMultiBinding',
-    //                   credentialsId: 'vault',
-    //                   usernameVariable: 'VAULT_USER',
-    //                   passwordVariable: 'VAULT_PASSWORD']]) {
-    //     "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && landscape environment --list-targets".execute().text
-    // }
 }
 
 def vault_addr = getVaultAddress()
 def vault_cacert = getVaultCacert()
+def k8s_targets = getTargets()
 
 pipeline {
     agent any
 
     environment {
-        VAULT_ADDR     = vault_addr
-        VAULT_CACERT   = vault_cacert
+        VAULT_ADDR     = getVaultAddress()
+        VAULT_CACERT   = getVaultCacert()
     }
 
     options {
@@ -41,7 +36,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
-        choice(name: 'PROVISIONER', choices: getTargets(), description: 'cluster provisioner')
+        choice(name: 'PROVISIONER', choices: k8s_targets, description: 'cluster provisioner')
     }
 
     triggers {
