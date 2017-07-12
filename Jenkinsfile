@@ -5,19 +5,6 @@ def cluster_domain = "${env.BRANCH_NAME}.local"
 
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
-def getVaultAddress() {
-    domain = "grep search /etc/resolv.conf | awk '{ print \$NF }'".execute().text
-    return "https://http.vault.svc." + domain + ":8200"
-}
-
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
-
-def getTargets() {
-    return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-}
-
 def vault_addr = getVaultAddress()
 def vault_cacert = getVaultCacert()
 def k8s_targets = getTargets()
@@ -26,6 +13,15 @@ pipeline {
     agent any
 
     environment {
+        def getVaultAddress() {
+            domain = "grep search /etc/resolv.conf | awk '{ print \$NF }'".execute().text
+            return "https://http.vault.svc." + domain + ":8200"
+        }
+
+        def getVaultCacert() {
+            return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        }
+
         VAULT_ADDR     = getVaultAddress()
         VAULT_CACERT   = getVaultCacert()
     }
@@ -35,12 +31,10 @@ pipeline {
     }
 
     parameters {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                          credentialsId: 'vault',
-                          usernameVariable: 'VAULT_USER',
-                          passwordVariable: 'VAULT_PASSWORD']]) {
-            sh "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && export PATH=$PATH:/usr/local/bin && make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} deploy"
+        def getTargets() {
+            return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
         }
+
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
         choice(name: 'PROVISIONER', choices: getTargets(), description: 'cluster provisioner')
     }
