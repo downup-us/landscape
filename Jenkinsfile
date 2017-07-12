@@ -6,7 +6,7 @@ def cluster_domain = "${env.BRANCH_NAME}.local"
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
 def getVaultAddress() {
-    domain = "grep search /etc/resolv.conf | awk '{ print $NF }'".execute().text
+    domain = "grep search /etc/resolv.conf | awk '{ print \$NF }'".execute().text
     return "https://http.vault.svc." + domain + ":8200"
 }
 
