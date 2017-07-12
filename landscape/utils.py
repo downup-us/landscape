@@ -57,28 +57,33 @@ def get_k8s_context_for_provisioner(provisioner, project_name, git_branch_name):
 
 def list_deploy_target_clusters(k8s_provisioner_selection=None):
     """
-        Lists target clusters for a given provisioner
-        Minikube can deploy to itself and GCE, but GCE can't deploy to minikube
+    Lists target clusters for a given provisioner
+    Minikube can deploy to itself and GCE, but GCE can't deploy to minikube
 
-        Arguments: k8s_provisioner_selection
+    Arguments: k8s_provisioner_selection
+
+    Returns: List of terraform targets pulled from Vault
     """
 
-    # Generate target list pulled from Vault
-    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
+    # Generate list of targets, by pulling from Vault
     terraform_targets_root = '/secret/terraform/'
-    terraform_targets_in_vault = vault_client.list(terraform_targets_root)
-    available_terraform_targets = terraform_targets_in_vault['data']['keys']
-    for target_with_trailing_slash in available_terraform_targets:
+    available_terraform_targets = []
+
+    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
+    root_targets = vault_client.list(terraform_targets_root)
+    
+    targets_in_vault = root_targets['data']['keys']
+
+    for target_with_trailing_slash in targets_in_vault:
         target = re.sub('\/$', '', target_with_trailing_slash)
-        available_terraform_targets += target
+        available_terraform_targets.append(target)
 
     # Build deployment target list
-    available_terraform_targets = []
     if k8s_provisioner_selection == 'minikube':
-        available_terraform_targets += 'minikube'
+        available_terraform_targets.append('minikube')
 
-
-
+    return available_terraform_targets
 
 def eprint(*args, **kwargs):
+    # print except stderr
     print(*args, file=sys.stderr, **kwargs)

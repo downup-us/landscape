@@ -84,7 +84,9 @@ def main():
     elif args['environment']:
         if args['--list-targets']:
             target_provisioner = args['--target-provisioner']
-            list_deploy_target_clusters(target_provisioner)
+            target_list = list_deploy_target_clusters(target_provisioner)
+            for t in target_list:
+              print(t)
         else:
             setup_environment(os_type, k8s_provisioner)
 if __name__ == "__main__":

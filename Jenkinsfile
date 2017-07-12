@@ -15,7 +15,7 @@ def getVaultCacert() {
 }
 
 def getTargets() {
-    return "a\nb\nc\n"
+    return "landscape environment --list-targets --target-provisioner=minikube".execute().text
 }
 
 def vault_addr = getVaultAddress()
