@@ -1,36 +1,5 @@
 #! /usr/bin/env groovy
 
-def git_branch     = "${env.BRANCH_NAME}"
-def cluster_domain = "${env.BRANCH_NAME}.local"
-
-def possible_provisioner_targets = "landscape environment --list-targets".execute().text
-
-def getVaultAddress() {
-    domain = "grep search /etc/resolv.conf | awk '{ print \$NF }'".execute().text
-    return "https://http.vault.svc." + domain + ":8200"
-}
-
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
-
-def getTargets() {
-    return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-}
-
-def workspaceName() {
-    return "myworkspace"
-}
-def vault_addr = getVaultAddress()
-def vault_cacert = getVaultCacert()
-def k8s_targets = getTargets()
-
-properties([
-   parameters([
-      choice(choices: "x\ny\nz\n", description: 'Please select an environment', name: 'Env')
-   ])
-])
-
 
 node('landscape') {
     stage('Checkout') {
