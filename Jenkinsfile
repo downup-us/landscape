@@ -1,15 +1,16 @@
 #! /usr/bin/env groovy
 // TODO: parallelize deployments, slack notifications
 
-properties([
-   parameters([
-      choice(choices: available_targets, description: 'Please select an environment', name: 'Env', pipelineTriggers([]))
-   ])
-])
 
 def getTargets() {
     return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
 }
+
+properties([
+   parameters([
+      choice(choices: getTargets(), description: 'Please select an environment', name: 'Env', pipelineTriggers([]))
+   ])
+])
 
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -17,7 +18,6 @@ def getVaultCacert() {
 
 
 node('landscape') {
-    def available_targets = getTargets()
 
     stage('Checkout') {
       checkout scm
