@@ -8,10 +8,11 @@ def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
 
+def available_targets = getTargets()
 
 properties([
    parameters([
-      choice(choices: getTargets(), description: 'Please select an environment', name: 'Env')
+      choice(choices: available_targets, description: 'Please select an environment', name: 'Env')
    ])
 ])
 
