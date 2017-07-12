@@ -24,14 +24,14 @@ HELM_CHART_INSTALL := "__all_charts__"
 
 # default command to deploy the cluster.
 # intention is to append to this command, based on the provisioner
-DEPLOY_CMD := landscape deploy --provisioner=$(PROVISIONER)
+DEPLOY_CMD := landscape deploy --provisioner=$(PROVISIONER) --namespace=$(K8S_NAMESPACE) --chart=$(HELM_CHART_INSTALL)
 
 # Jenkinsfile stages, plus other targets
 .PHONY: deploy
 
 deploy:
 ifeq ($(PROVISIONER),terraform)
-	${DEPLOY_CMD} --gce-project-id=$(GCE_PROJECT_ID) --namespace=$(K8S_NAMESPACE) --chart=$(HELM_CHART_INSTALL)
+	${DEPLOY_CMD} --gce-project-id=$(GCE_PROJECT_ID) 
 else
 	${DEPLOY_CMD}
 endif

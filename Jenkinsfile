@@ -1,5 +1,9 @@
 #! /usr/bin/env groovy
 
+def getVaultCacert() {
+    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+}
+
 properties([
    parameters([
       choice(choices: "x\ny\nz\n", description: 'Please select an environment', name: 'Env')
