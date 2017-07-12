@@ -35,8 +35,14 @@ pipeline {
     }
 
     parameters {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                          credentialsId: 'vault',
+                          usernameVariable: 'VAULT_USER',
+                          passwordVariable: 'VAULT_PASSWORD']]) {
+            sh "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && export PATH=$PATH:/usr/local/bin && make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} deploy"
+        }
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
-        choice(name: 'PROVISIONER', choices: k8s_targets, description: 'cluster provisioner')
+        choice(name: 'PROVISIONER', choices: getTargets(), description: 'cluster provisioner')
     }
 
     triggers {
