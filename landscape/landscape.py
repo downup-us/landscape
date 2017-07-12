@@ -1,24 +1,48 @@
 """Landscape class to handle deployments of clusters and Landscaper configs."""
 
-class Landscape(object):
-    """Deploys Kubernetes clusters and Helm charts
+class LandscapeCluster(object):
+    """Deploys Kubernetes clusters (but not Helm charts)
 
     Arguments:
-        log(logger obj): A logger to log messages.
-
-        config(configparger obj): A configparser object with the configuration
-
-        action(Queue obj): A queue of IP prefixes and their action to be taken
-        based on the state of health check. An item is a tuple of 3 elements:
-        1st: name of the thread.
-        2nd: IP prefix.
-        3nd: Action to take, either 'add' or 'del'.
+        provision(provisioner obj): k8s provisioner (minikube, terraform, etc)
+        config(provisionerConfig obj): provisioner-specific options
 
     Methods:
-        run(): Lunches checks and updates BIRD configuration based on
-        the result of the check.
-        catch_signal(signum, frame): Catches signals
+        new(
+            provisioner=minikube, # or terraform
+            gce_project_id=develop-123456, # GCE project ID
+            landscaper_branch=master # Landscape chart-set for environment
+            ):
+            an object representing a Landscape-provisioned cluster
+        deploy():
+            Converge cluster towards its desired-state
+    """
+    
+    def __init__(self, provisioner, gce_project_id, landscaper_branch):
+        self.provisioner = provisioner
+        self.gce_project_id = gce_project_id
+        self.landscaper_branch = landscaper_branch
+        print("LandscapeProvisioner placeholder")
+
+
+class LandscapeHelmCharts(object):
+    """Deploys Kubernetes Helm charts (but not clusters)
+
+    Arguments:
+        provision(provisioner obj): k8s provisioner (minikube, terraform, etc)
+        config(provisionerConfig obj): provisioner-specific options
+
+    Methods:
+        new(
+            provisioner=minikube,
+            gce_project_id=develop-123456,
+            landscaper-branch=master
+            ):
+        an object representing a Landscape set of Helm charts.
+
+        deploy():
+            Converge helm chart set towards its desired-state
     """
     
     def __init__(self):
-        print("placeholder")
+        print("LandscapeHelmCharts placeholder")

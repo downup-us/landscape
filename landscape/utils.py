@@ -55,15 +55,29 @@ def get_k8s_context_for_provisioner(provisioner, project_name, git_branch_name):
       # covers minikube
       return provisioner
 
-def list_deploy_targets():
-    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
+def list_deploy_target_clusters(k8s_provisioner_selection=None):
+    """
+        Lists target clusters for a given provisioner
+        Minikube can deploy to itself and GCE, but GCE can't deploy to minikube
 
+        Arguments: k8s_provisioner_selection
+    """
+
+    # Generate target list pulled from Vault
+    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
     terraform_targets_root = '/secret/terraform/'
     terraform_targets_in_vault = vault_client.list(terraform_targets_root)
     available_terraform_targets = terraform_targets_in_vault['data']['keys']
     for target_with_trailing_slash in available_terraform_targets:
         target = re.sub('\/$', '', target_with_trailing_slash)
-        print(target)
+        available_terraform_targets += target
+
+    # Build deployment target list
+    available_terraform_targets = []
+    if k8s_provisioner_selection == 'minikube':
+        available_terraform_targets += 'minikube'
+
+
 
 
 def eprint(*args, **kwargs):

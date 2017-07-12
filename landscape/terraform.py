@@ -28,7 +28,9 @@ def apply_terraform_cluster(dns_domain, project_id, template_dir, git_branch_nam
 
 def get_gke_credentials(tf_template_dir):
     """
-    Pull GKE kubernetes credentials from GCE
+    Pull GKE kubernetes credentials from GCE and writes to ~/.kube/config
+
+    Returns: None, but gke credentials should be in ~/.kube/config
     """
     credentials_cmd = 'terraform output get-credentials-command'
     print('  - obtaining terraform script with command: ' + credentials_cmd)

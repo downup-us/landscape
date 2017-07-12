@@ -5,15 +5,6 @@ def cluster_domain = "${env.BRANCH_NAME}.local"
 
 def possible_provisioner_targets="landscape environment --list-targets".execute().text
 
-def getTargets() {
-    withCredentials([[$class: 'UsernamePasswordMultiBinding',
-                      credentialsId: 'vault',
-                      usernameVariable: 'VAULT_USER',
-                      passwordVariable: 'VAULT_PASSWORD']]) {
-        "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && landscape environment --list-targets".execute().text
-    }
-}
-
 def getVaultAddress() {
     domain = "grep search /etc/resolv.conf | awk '{ print $NF }'".execute().text
     return "https://http.vault.svc." + domain + ":8200"
@@ -22,6 +13,17 @@ def getVaultAddress() {
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
+
+def getTargets() {
+    return "a\nb\nc\n"
+    // withCredentials([[$class: 'UsernamePasswordMultiBinding',
+    //                   credentialsId: 'vault',
+    //                   usernameVariable: 'VAULT_USER',
+    //                   passwordVariable: 'VAULT_PASSWORD']]) {
+    //     "vault auth -method=ldap username=$VAULT_USER password=$VAULT_PASSWORD 2>&1 > /dev/null && export VAULT_TOKEN=\$(vault read -field id auth/token/lookup-self) && landscape environment --list-targets".execute().text
+    // }
+}
+
 
 pipeline {
     agent any

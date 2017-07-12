@@ -29,6 +29,10 @@ def helm_add_chart_repo(repo_alias, url):
     repo_add_cmd = "helm repo add {0} {1}".format(repo_alias, url)
     subprocess.call(repo_add_cmd, shell=True)
 
+
 def helm_repo_update():
+    """
+    Updates the local Helm repository index of available charts
+    """
     repo_update_cmd = 'helm repo update'
     subprocess.call(repo_update_cmd, shell=True)

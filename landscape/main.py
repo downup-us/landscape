@@ -3,8 +3,8 @@
 """landscape: deploy Helm charts
 
 Usage:
-  landscape deploy [--provisioner=<provisioner] [--gce-project-id=<gce_project_name>] [--landscaper-branch=<git_branch>] [--cluster-domain=<domain>]
-  landscape environment [--list-targets]
+  landscape deploy [--provisioner=<provisioner>] [--gce-project-id=<gce_project_name>] [--landscaper-branch=<git_branch>] [--cluster-domain=<domain>]
+  landscape environment [--list-targets] [--target-provisioner=<provisioner>]
   landscape test
   landscape verify
   landscape report
@@ -15,10 +15,11 @@ Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
   --cluster-domain=<domain>               domain used for inside-cluster DNS (defaults to ${GIT_BRANCH}.local)
   --gce-project-id=<gce_project_name>     in GCE environment, which project ID to use
-  --ns=<namespace>                        deploy charts in specified namespace
+  --namespace=<namespace>                 deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
   --list-targets                          show available deployment targets
   --landscaper-branch=<git_branch>        Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
+  --target-provisioner=<provisioner>      List targets only for specific deploy provisioner [default: __all_deploy_targets__].
 
 Provisioner can be one of minikube, terraform.
 """
@@ -34,7 +35,7 @@ from .setup import install_prerequisites
 from .environment import setup_environment
 from .cluster import deploy_cluster
 from .landscaper import deploy_helm_charts
-from .utils import (get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_targets, eprint)
+from .utils import (get_k8s_context_for_provisioner, gce_get_zone_for_project_and_branch_deployment, list_deploy_target_clusters, eprint)
 from .kubernetes import kubectl_use_context
 from .hack import wide_open_security
 
@@ -57,7 +58,7 @@ def main():
     gce_project_name = args['--gce-project-id']
 
     # which branch to deploy (used for Vault key lookup)
-    git_branch_name = args['--landscape-branch']
+    git_branch_name = args['--landscaper-branch']
 
     # not useful for gke deployments; it's always cluster.local there
     cluster_domain   = args['--cluster-domain']
@@ -82,7 +83,8 @@ def main():
     # local tool setup
     elif args['environment']:
         if args['--list-targets']:
-            list_deploy_targets()
+            target_provisioner = args['--target-provisioner']
+            list_deploy_target_clusters(target_provisioner)
         else:
             setup_environment(os_type, k8s_provisioner)
 if __name__ == "__main__":
