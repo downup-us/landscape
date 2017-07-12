@@ -19,12 +19,16 @@ def getVaultAddress() {
     return "https://http.vault.svc." + domain + ":8200"
 }
 
+def getVaultCacert() {
+    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+}
+
 pipeline {
     agent any
 
     environment {
         VAULT_ADDR     = getVaultAddress()
-        VAULT_CACERT   = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        VAULT_CACERT   = getVaultCacert()
     }
 
     options {
@@ -43,8 +47,8 @@ pipeline {
     stages {
         stage('Environment') {
             steps {
-                echo "using git branch: ${env.BRANCH_NAME}"
-                echo "using clusterDomain: ${env.BRANCH_NAME}.local"
+                echo "using git branch: ${git_branch}"
+                echo "using clusterDomain: ${git_branch}.local"
                 sh "git checkout ${git_branch}"
                 sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} environment"
             }

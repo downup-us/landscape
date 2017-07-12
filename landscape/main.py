@@ -3,7 +3,7 @@
 """landscape: deploy Helm charts
 
 Usage:
-  landscape deploy [--provisioner=<provisioner] [--gce-project-id=<gce_project_name>] [--landscape-branch=<git_branch>] [--cluster-domain=<domain>]
+  landscape deploy [--provisioner=<provisioner] [--gce-project-id=<gce_project_name>] [--landscaper-branch=<git_branch>] [--cluster-domain=<domain>]
   landscape environment [--list-targets]
   landscape test
   landscape verify
@@ -18,7 +18,7 @@ Options:
   --ns=<namespace>                        deploy charts in specified namespace
   --all-namespaces                        deploy charts in all namespaces
   --list-targets                          show available deployment targets
-  --landscape-branch=<git_branch>         Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
+  --landscaper-branch=<git_branch>        Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
 
 Provisioner can be one of minikube, terraform.
 """
