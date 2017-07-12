@@ -1,5 +1,10 @@
 #! /usr/bin/env groovy
 
+properties([
+   parameters([
+      choice(choices: "x\ny\nz\n", description: 'Please select an environment', name: 'Env')
+   ])
+])
 
 node('landscape') {
     stage('Checkout') {
