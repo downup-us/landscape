@@ -24,13 +24,15 @@ def getTargets() {
     // }
 }
 
+def vault_addr = getVaultAddress()
+def vault_cacert = getVaultCacert()
 
 pipeline {
     agent any
 
     environment {
-        VAULT_ADDR     = getVaultAddress()
-        VAULT_CACERT   = getVaultCacert()
+        VAULT_ADDR     = vault_addr
+        VAULT_CACERT   = vault_cacert
     }
 
     options {
