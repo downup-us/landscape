@@ -27,13 +27,14 @@ def vault_addr = getVaultAddress()
 def vault_cacert = getVaultCacert()
 def k8s_targets = getTargets()
 
-timestamps {
-    properties([
-       parameters([
-          choice(choices: "x\ny\nz\n", description: 'Please select an environment', name: 'Env')
-       ])
-    ])
+properties([
+   parameters([
+      choice(choices: "x\ny\nz\n", description: 'Please select an environment', name: 'Env')
+   ])
+])
 
+
+timestamps {
     node('landscape') {
         ws(workspaceName()) {
             try {
