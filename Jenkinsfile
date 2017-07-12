@@ -39,7 +39,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'turn on debugging')
-        choice(name: 'PROVISIONER', choices: "minikube\nkops\ngke\n", description: 'cluster provisioner')
+        choice(name: 'PROVISIONER', choices: getTargets(), description: 'cluster provisioner')
     }
 
     triggers {
