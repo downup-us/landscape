@@ -7,15 +7,16 @@ properties([
    ])
 ])
 
+def getTargets() {
+    return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+}
+
+def getVaultCacert() {
+    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+}
+
+
 node('landscape') {
-    def getTargets() {
-        return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-    }
-
-    def getVaultCacert() {
-        return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-    }
-
     def available_targets = getTargets()
 
     stage('Checkout') {
