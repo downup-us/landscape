@@ -1,15 +1,5 @@
 #! /usr/bin/env groovy
 
-def getTargets() {
-    return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-}
-
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
-
-def available_targets = getTargets()
-
 properties([
    parameters([
       choice(choices: available_targets, description: 'Please select an environment', name: 'Env')
@@ -17,6 +7,16 @@ properties([
 ])
 
 node('landscape') {
+    def getTargets() {
+        return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+    }
+
+    def getVaultCacert() {
+        return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    }
+
+    def available_targets = getTargets()
+
     stage('Checkout') {
       checkout scm
     }
