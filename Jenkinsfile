@@ -1,18 +1,7 @@
 #! /usr/bin/env groovy
 
-parameters {
-  choice(choices: "a\nb\n", description: 'Please select an environment', name: 'PROVISIONER', pipelineTriggers([]))
-}
-
-
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
-
-def getTargets() {
-    minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-    return minikube_targets
-}
+properties([parameters([choice(choices: ['a', 'b', 'c'], description: 'the prob', name: 'prov')]), pipelineTriggers([cron('''* * * * *
+''')])])
 
 
 node('landscape') {
