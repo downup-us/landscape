@@ -1,7 +1,8 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-
+withContext(new MyConsoleLogFilter()) {
+    properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+}
 
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -13,9 +14,6 @@ def getTargets() {
 }
 
 node('landscape') {
-    mycontext = getContext(hudson.FilePath)
-    println(mycontext)
-
 
     stage('Checkout') {
       checkout scm
