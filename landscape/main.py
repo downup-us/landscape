@@ -6,7 +6,7 @@ landscape: deploy Helm charts
 Provisions Kubernetes clusters and Helm charts, with secrets in Hashicorp Vault
 
 Usage:
-  landscape deploy      [--provisioner=<provisioner>] [--gce-project-id=<gce_project_id>] [--cluster-dns-domain=<dns_domain>] [--landscaper-git-branch=<git_branch>] [--namespace=<namespace>] [--chart=<chart>]
+  landscape deploy      [--provisioner=<provisioner>] [--gce-project-id=<gce_project_id>] [--kubernetes-version=<kubernetes_version>] [--cluster-dns-domain=<dns_domain>] [--landscaper-git-branch=<git_branch>] [--namespace=<namespace>] [--chart=<chart>]
   landscape environment [--list-targets] [--fetch-lastpass] [--landscaper-git-branch=<git_branch>]
   landscape test
   landscape verify
@@ -17,6 +17,8 @@ Usage:
 Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
   --gce-project-id=<gce_project_id>       in GCE environment, which project ID to use
+  --kubernetes-version=<kubernetes_version>       in GCE environment, which project ID to use [default: 1.7.0].
+  --kubernetes-domain=<gce_project_id>       in GCE environment, which project ID to use
   --cluster-dns-domain=<dns_domain>       DNS domain used for inside-cluster DNS defaults to $GIT_BRANCH.local.
   --landscaper-git-branch=<git_branch>    Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
   --namespace=<namespace>                 install only charts under specified namespace
@@ -56,6 +58,7 @@ def main():
     arg_environment           = args.get('environment')
     k8s_provisioner           = args.get('--provisioner')
     gce_project_id            = args.get('--gce-project-id')
+    kubernetes_version        = args.get('--kubernetes-version')
     dns_domain                = args.get('--cluster-dns-domain')
     landscaper_branch         = args.get('--landscaper-git-branch')
     namespace                 = args.get('--namespace')
@@ -82,6 +85,7 @@ def main():
         # deploy cluster and initialize Helm's tiller pod
         deploy_cluster(provisioner=k8s_provisioner,
                         project_id=gce_project_id,
+                        k8s_version=kubernetes_version,
                         git_branch=landscaper_branch,
                         dns_domain=dns_domain)
         wide_open_security() # workaround until RBAC ClusterRoles are in place
@@ -89,14 +93,12 @@ def main():
         # local tool setup
     elif arg_environment:
         if list_targets:
-            target_provisioner = target_provisioner
-            target_list = list_deploy_target_clusters(target_provisioner)
+            target_list = list_deploy_target_clusters(k8s_provisioner)
             for t in target_list:
               print(t)
-        if fetch_lastpass:
-            target_provisioner = target_provisioner
-            landscaper_branch = landscaper_branch
-            populate_vault_with_lastpass_secrets(landscaper_branch)
+        elif fetch_lastpass:
+            populate_vault_with_lastpass_secrets(k8s_provisioner,
+                                                    landscaper_branch)
             for t in target_list:
               print(t)
         else:

@@ -18,7 +18,7 @@ THIRD_PARTY_TOOL_OPTIONS = {
     	'init_cmd_template': 'minikube start ' + \
             "--dns-domain={0} " + \
             "--vm-driver={1} " + \
-            '--kubernetes-version=v1.6.4 ' + \
+            '--kubernetes-version=v{2} ' + \
             '--extra-config=apiserver.Authorization.Mode=RBAC ' + \
             '--extra-config=controller-manager.ClusterSigningCertFile=' + \
             '/var/lib/localkube/certs/ca.crt ' + \
@@ -27,8 +27,8 @@ THIRD_PARTY_TOOL_OPTIONS = {
             '--cpus=8 ' + \
             '--disk-size=20g ' + \
             '--memory=8192 ' + \
-            '--docker-env HTTPS_PROXY=$HTTPS_PROXY ' + \
-            '--docker-env HTTP_PROXY=$HTTP_PROXY ' + \
+            '--docker-env HTTPS_PROXY=$http_proxy ' + \
+            '--docker-env HTTP_PROXY=$https_proxy ' + \
             '-v=0',
         'minikube_status_cmd': 'minikube status ' + \
                                 '--format=\'{{.MinikubeStatus}}\'',
@@ -63,7 +63,7 @@ THIRD_PARTY_TOOL_OPTIONS = {
         }
     },
     'kubectl': {
-        'version': '1.6.4'
+        'version': '1.7.0'
     },
     'vault': {
         'version': '0.7.3'

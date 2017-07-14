@@ -3,7 +3,7 @@ import sys
 
 from . import THIRD_PARTY_TOOL_OPTIONS
 
-def apply_minikube_cluster(dns_domain):
+def apply_minikube_cluster(k8s_version, dns_domain):
     """
     creates or converges a minikube-provisioned cluster to its desired-state
 
@@ -12,23 +12,24 @@ def apply_minikube_cluster(dns_domain):
 
     Returns: None
     """
+    print("DNS_DOMAIN={0}".format('apply_minikube_cluster'))
     minikube_status_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['minikube_status_cmd']
     proc = subprocess.Popen(minikube_status_cmd, stdout=subprocess.PIPE, shell=True)
     minikube_status = proc.stdout.read().rstrip().decode()
 
     if not minikube_status == 'Running':
-        start_minikube(dns_domain)
+        init_minikube(k8s_version, dns_domain)
     else:
         print('  - minikube cluster previously provisioned. Re-using ')
     minikube_disable_addons()
 
 
-def start_minikube(dns_domain):
+def init_minikube(k8s_version, dns_domain):
     """
     Starts minikube. Prints an error if non-zero exit status
     """
     mk_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['minikube']['init_cmd_template']
-    k8s_provision_command = mk_cmd_tmpl.format(dns_domain, "xhyve")
+    k8s_provision_command = mk_cmd_tmpl.format(dns_domain, "xhyve", k8s_version)
     print('  - running ' + k8s_provision_command)
     minikube_failed = subprocess.call(k8s_provision_command, shell=True)
     if minikube_failed:

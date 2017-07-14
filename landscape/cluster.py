@@ -20,7 +20,7 @@ import sys
 import time
 import os
 
-def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
+def deploy_cluster(provisioner, project_id, k8s_version, git_branch, dns_domain):
     """
     initializes a cluster with Helm's tiller
 
@@ -35,6 +35,7 @@ def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
     tf_templates_dir = './terraform'
     print('Converging cluster using:')
     print("- Provisioner: {0} ".format(provisioner))
+    print("- Kubernetes version: {0}".format(k8s_version))
     print("- GCE project ID: {0} ".format(project_id))
     print("- Cluster is named {0} ".format(git_branch))
     print("   - by convention using landscape branch {0}".format(git_branch))
@@ -49,7 +50,7 @@ def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
     # local development
     elif provisioner == 'minikube':
         start_local_dev_vault()
-        apply_minikube_cluster(dns_domain)
+        apply_minikube_cluster(k8s_version, dns_domain)
         context_name = 'minikube'
 
     # Set local context to just deployed/converged cluster
