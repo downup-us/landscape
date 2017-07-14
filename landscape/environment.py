@@ -44,22 +44,7 @@ def setup_provisioner_minikube():
     """
     Initializes user's environment for minikube deployments
     """
-    start_local_dev_vault()
-
-
-def start_local_dev_vault():
-    """
-    Starts a local Hashicorp Vault container used to hold bootstrap secrets
-    """
-    docker_running_cmd = 'docker ps'
-    docker_stopped = subprocess.call(docker_running_cmd, shell=True)
-    if docker_stopped:
-        sys.exit('Docker daemon not running - exiting.')
-    check_dev_vault_cmd = 'docker ps | grep dev-vault'
-    need_dev_vault = subprocess.call(check_dev_vault_cmd, shell=True)
-    if need_dev_vault:
-        start_dev_vault_cmd = THIRD_PARTY_TOOL_OPTIONS['minikube']['dev_vault_init_cmd']
-        subprocess.call(start_dev_vault_cmd, shell=True)
+    print("TODO: any local minikube environment setup")
 
 
 def set_gce_credentials(gce_project, gce_region):

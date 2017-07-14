@@ -9,6 +9,7 @@ Limitations: git branch name stored in Vault as key.
 
 """
 from . import THIRD_PARTY_TOOL_OPTIONS
+from .local import start_local_dev_vault
 from .environment import set_gce_credentials
 from .terraform import apply_terraform_cluster
 from .minikube import apply_minikube_cluster
@@ -47,8 +48,9 @@ def deploy_cluster(provisioner, project_id, git_branch, dns_domain):
         context_name = "gke_{0}_{1}_{2}".format(project_id, zone, git_branch)
     # local development
     elif provisioner == 'minikube':
-        context_name = 'minikube'
+        start_local_dev_vault()
         apply_minikube_cluster(dns_domain)
+        context_name = 'minikube'
 
     # Set local context to just deployed/converged cluster
     kubectl_use_context(context_name)

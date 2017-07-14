@@ -1,10 +1,13 @@
 #! /usr/bin/env python3
 
-"""landscape: deploy Helm charts
+"""
+landscape: deploy Helm charts
+
+Provisions Kubernetes clusters and Helm charts, with secrets in Hashicorp Vault
 
 Usage:
-  landscape deploy [--provisioner=<provisioner>] [--gce-project-id=<gce_project_name>] [--landscaper-branch=<git_branch>] [--cluster-domain=<domain>]
-  landscape environment [--list-targets] [--target-provisioner=<provisioner>]
+  landscape deploy      [--provisioner=<provisioner>] [--gce-project-id=<gce_project_id>] [--cluster-dns-domain=<dns_domain>] [--landscaper-git-branch=<git_branch>] [--namespace=<namespace>] [--chart=<chart>]
+  landscape environment [--list-targets] [--fetch-lastpass] [--landscaper-git-branch=<git_branch>]
   landscape test
   landscape verify
   landscape report
@@ -13,14 +16,13 @@ Usage:
 
 Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
-  --cluster-domain=<domain>               domain used for inside-cluster DNS (defaults to ${GIT_BRANCH}.local)
-  --gce-project-id=<gce_project_name>     in GCE environment, which project ID to use
-  --namespace=<namespace>                 deploy charts in specified namespace
-  --all-namespaces                        deploy charts in all namespaces
+  --gce-project-id=<gce_project_id>       in GCE environment, which project ID to use
+  --cluster-dns-domain=<dns_domain>       DNS domain used for inside-cluster DNS defaults to $GIT_BRANCH.local.
+  --landscaper-git-branch=<git_branch>    Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
+  --namespace=<namespace>                 install only charts under specified namespace
+  --chart=<chart>                         Install only chart name
   --list-targets                          show available deployment targets
-  --landscaper-branch=<git_branch>        Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
-  --target-provisioner=<provisioner>      List targets only for specific deploy provisioner [default: __all_deploy_targets__].
-
+  --fetch-lastpass                        Fetches values from Lastpass and puts them in Vault
 Provisioner can be one of minikube, terraform.
 """
 
@@ -31,6 +33,7 @@ import subprocess
 import platform
 
 from . import THIRD_PARTY_TOOL_OPTIONS
+from .local import populate_vault_with_lastpass_secrets
 from .setup import install_prerequisites
 from .environment import setup_environment
 from .cluster import deploy_cluster
@@ -48,47 +51,58 @@ from . import csr
 def main():
     # branch is used to pull secrets from Vault, and to distinguish clusters
     args = docopt.docopt(__doc__)
-    
+
+    arg_deploy                = args.get('deploy')
+    arg_environment           = args.get('environment')
+    k8s_provisioner           = args.get('--provisioner')
+    gce_project_id            = args.get('--gce-project-id')
+    dns_domain                = args.get('--cluster-dns-domain')
+    landscaper_branch         = args.get('--landscaper-git-branch')
+    namespace                 = args.get('--namespace')
+    chart                     = args.get('--charts')
+    list_targets              = args.get('--list-targets')
+    fetch_lastpass            = args.get('--fetch-lastpass')
+
     os_type = platform.system() # e.g. 'Darwin'
 
-    # Which kubernetes provisioner to use.
-    k8s_provisioner  = args['--provisioner']
-    
-    # Project name to deploy. Must be in Vault
-    gce_project_name = args['--gce-project-id']
-
-    # which branch to deploy (used for Vault key lookup)
-    git_branch_name = args['--landscaper-branch']
-
-    # not useful for gke deployments; it's always cluster.local there
-    cluster_domain   = args['--cluster-domain']
-
     # Cluster DNS domain inside containers' /etc/resolv.conf
-    if not cluster_domain:
-        cluster_domain = git_branch_name + '.local'
+    if not dns_domain:
+        dns_domain = landscaper_branch + '.local'
         # GKE requires 'cluster.local' as DNS domain
         if k8s_provisioner == 'terraform':
-            cluster_domain = 'cluster.local'
-    
+            dns_domain = 'cluster.local'
+            print("Forcing domain to {0} in GKE (terraform)".format(dns_domain))
+
     k8s_context = get_k8s_context_for_provisioner(k8s_provisioner,
-                                                    gce_project_name,
-                                                    git_branch_name)
+                                                    gce_project_id,
+                                                    landscaper_branch)
     # All deployment information is stored in Vault
 
-    if args['deploy']:
+    if arg_deploy:
         # deploy cluster and initialize Helm's tiller pod
-        deploy_cluster(provisioner=k8s_provisioner, project_id=gce_project_name, git_branch=git_branch_name, dns_domain=cluster_domain)
+        deploy_cluster(provisioner=k8s_provisioner,
+                        project_id=gce_project_id,
+                        git_branch=landscaper_branch,
+                        dns_domain=dns_domain)
         wide_open_security() # workaround until RBAC ClusterRoles are in place
-        deploy_helm_charts(k8s_provisioner, git_branch_name)
-    # local tool setup
-    elif args['environment']:
-        if args['--list-targets']:
-            target_provisioner = args['--target-provisioner']
+        deploy_helm_charts(k8s_provisioner, landscaper_branch)
+        # local tool setup
+    elif arg_environment:
+        if list_targets:
+            target_provisioner = target_provisioner
             target_list = list_deploy_target_clusters(target_provisioner)
+            for t in target_list:
+              print(t)
+        if fetch_lastpass:
+            target_provisioner = target_provisioner
+            landscaper_branch = landscaper_branch
+            populate_vault_with_lastpass_secrets(landscaper_branch)
             for t in target_list:
               print(t)
         else:
             setup_environment(os_type, k8s_provisioner)
+
+
 if __name__ == "__main__":
     main()
 
