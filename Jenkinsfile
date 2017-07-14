@@ -4,7 +4,7 @@ mycontext = getContext(hudson.FilePath)
 
 
 withContext(mycontext) {
-    properties([parameters([choice(choices: "a\nb\n", filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+    properties([parameters([choice(choices: getTargets(), filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 
 }
 
