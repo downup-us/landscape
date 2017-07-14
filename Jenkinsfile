@@ -8,6 +8,7 @@ def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
 
+@NonCPS
 def getTargets() {
     minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
     return minikube_targets
