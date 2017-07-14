@@ -16,7 +16,8 @@ node('landscape') {
         return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     }
     def getTargets() {
-        return sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+        minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+        return minikube_targets
     }
 
 
