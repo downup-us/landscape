@@ -1,6 +1,6 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: getTargets(), description: 'the prob', name: 'prov')])])
+properties([parameters([choice(choices: "a\nb\nc\n", description: 'the prob', name: 'prov')])])
 
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
