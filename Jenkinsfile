@@ -1,9 +1,5 @@
 #! /usr/bin/env groovy
 
-withContext("something") {
-    properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-}
-
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
@@ -13,6 +9,9 @@ def getTargets() {
     minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
     return minikube_targets
 }
+
+properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+
 
 node('landscape') {
 
