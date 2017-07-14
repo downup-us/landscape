@@ -1,7 +1,6 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: ['a', 'b', 'c'], description: 'the prob', name: 'prov')]), pipelineTriggers([cron('''* * * * *
-''')])])
+properties([parameters([choice(choices: ['a', 'b', 'c'], description: 'the prob', name: 'prov')])])
 
 
 node('landscape') {
