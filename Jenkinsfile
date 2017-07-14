@@ -2,6 +2,14 @@
 // TODO: parallelize deployments, slack notifications
 
 
+def getVaultCacert() {
+    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+}
+def getTargets() {
+    minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+    return minikube_targets
+}
+
 properties([
    parameters([
       choice(choices: getTargets(), description: 'Please select an environment', name: 'Env', pipelineTriggers([]))
@@ -9,17 +17,7 @@ properties([
 ])
 
 
-
 node('landscape') {
-
-    def getVaultCacert() {
-        return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-    }
-    def getTargets() {
-        minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-        return minikube_targets
-    }
-
 
     stage('Checkout') {
       checkout scm
