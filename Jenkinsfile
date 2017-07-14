@@ -1,6 +1,6 @@
 #! /usr/bin/env groovy
 
-withContext(new SimpleBuildWrapper.Context()) {
+withContext("something") {
     properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
