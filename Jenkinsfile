@@ -1,15 +1,18 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: getTargets(), filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+properties([parameters([choice(choices: "a\nb\n", filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
+// withContext() {
 
-def getTargets() {
-    minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-    return minikube_targets
-}
+// }
+// def getVaultCacert() {
+//     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+// }
+
+// def getTargets() {
+//     minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+//     return minikube_targets
+// }
 
 node('landscape') {
 
@@ -17,6 +20,8 @@ node('landscape') {
       checkout scm
     }
     stage('Environment') {
+        mycontext = getContext(hudson.FilePath)
+        echo mycontext
         echo "using git branch: ${git_branch}"
         echo "using clusterDomain: ${git_branch}.local"
         sh "git checkout ${git_branch}"
