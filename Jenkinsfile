@@ -10,7 +10,7 @@ def getTargets() {
     return minikube_targets
 }
 
-withContext() {}
+withContext() {
     properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
