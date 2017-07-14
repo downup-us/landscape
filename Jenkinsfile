@@ -1,6 +1,6 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: ['a', 'b', 'c'], description: 'the prob', name: 'prov')])])
+properties([parameters([choice(choices: "a\nb\nc\n", description: 'the prob', name: 'prov')])])
 
 
 node('landscape') {
