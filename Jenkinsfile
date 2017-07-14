@@ -1,18 +1,16 @@
 #! /usr/bin/env groovy
 
-def getVaultCacert() {
-    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-}
+withContext(utils.environmentNamespace('shiftwork-dev')) {
+    def getVaultCacert() {
+        return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    }
 
-@NonCPS
-def getTargets() {
-    minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
-    return minikube_targets
+    def getTargets() {
+        minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+        return minikube_targets
+    }
 }
-
-withContext(getWorkspaceList().allocate(baseWorkspace)) {
-    properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-}
+properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 
 node('landscape') {
 
