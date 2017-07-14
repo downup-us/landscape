@@ -1,6 +1,6 @@
 #! /usr/bin/env groovy
 
-withContext(new MyConsoleLogFilter()) {
+withContext(new SimpleBuildWrapper.Context()) {
     properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
