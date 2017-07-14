@@ -1,10 +1,8 @@
 #! /usr/bin/env groovy
 
-properties([
-   parameters([
-      choice(choices: "a\nb\n", description: 'Please select an environment', name: 'PROVISIONER', pipelineTriggers([]))
-   ])
-])
+parameters {
+  choice(choices: "a\nb\n", description: 'Please select an environment', name: 'PROVISIONER', pipelineTriggers([]))
+}
 
 
 def getVaultCacert() {
