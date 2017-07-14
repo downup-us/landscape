@@ -1,10 +1,10 @@
 #! /usr/bin/env groovy
 
 mycontext = getContext(hudson.FilePath)
-
+println(mycontext)
 
 withContext(mycontext) {
-    properties([parameters([choice(choices: getTargets(), filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+    properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 
 }
 
