@@ -10,7 +10,7 @@ def getTargets() {
     return minikube_targets
 }
 
-withContext() {
+withContext(new MyConsoleLogFilter()) {
     properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
