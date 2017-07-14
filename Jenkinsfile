@@ -1,11 +1,7 @@
 #! /usr/bin/env groovy
 
-mycontext = getContext(hudson.FilePath)
-println(mycontext)
-
 withContext(mycontext) {
-    properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-
+    properties([parameters([choice(choices: "a\nb\n", description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
 def getVaultCacert() {
@@ -18,6 +14,9 @@ def getTargets() {
 }
 
 node('landscape') {
+    mycontext = getContext(hudson.FilePath)
+    println(mycontext)
+
 
     stage('Checkout') {
       checkout scm
