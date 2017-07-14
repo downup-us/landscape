@@ -1,5 +1,11 @@
 #! /usr/bin/env groovy
 
+properties([
+   parameters([
+      choice(choices: getTargets(), description: 'Please select an environment', name: 'PROVISIONER', pipelineTriggers([]))
+   ])
+])
+
 
 node('landscape') {
 
