@@ -7,7 +7,7 @@ def getVaultCacert() {
 }
 
 def getTargets() {
-    minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+    minikube_targets = sh(filePath: '/tmp', script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
     return minikube_targets
 }
 
