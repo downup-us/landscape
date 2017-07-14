@@ -10,7 +10,7 @@ def getTargets() {
     return minikube_targets
 }
 
-withContext(new EnvironmentExpander()) {
+withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class) {
     properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
