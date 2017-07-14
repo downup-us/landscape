@@ -1,19 +1,12 @@
 #! /usr/bin/env groovy
-// Want to have parameters choice call getTargets(), but getting error:
-// Required context class hudson.FilePath is missing
-// Perhaps you forgot to surround the code with a step that provides this, such as: node
 
-properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+properties([parameters([choice(choices: getTargets(), filePath: '/tmp', description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
 
 def getTargets() {
-    // ERROR due to next line:
-    // Required context class hudson.FilePath is missing
-    // Perhaps you forgot to surround the code with a step that provides this, such as: node
-
     minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
     return minikube_targets
 }
@@ -45,3 +38,4 @@ node('landscape') {
         sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} report"
     }
 }
+
