@@ -1,11 +1,5 @@
 #! /usr/bin/env groovy
 
-properties([
-   parameters([
-      choice(choices: getTargets(), description: 'Please select an environment', name: 'Env', pipelineTriggers([]))
-   ])
-])
-
 
 node('landscape') {
 
@@ -33,4 +27,13 @@ node('landscape') {
         sh "echo make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} report"
         sh "make GIT_BRANCH=${env.BRANCH_NAME} PROVISIONER=${params.PROVISIONER} report"
     }
+}
+
+def getVaultCacert() {
+    return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+}
+
+def getTargets() {
+    minikube_targets = sh(script: 'landscape environment --list-targets --target-provisioner=minikube', returnStdout: true).trim()
+    return minikube_targets
 }
