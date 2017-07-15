@@ -1,6 +1,6 @@
 #! /usr/bin/env groovy
 
-withContext(utils.environmentNamespace('shiftwork-dev')) {
+withContext("fakecontext") {
     properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
 }
 
