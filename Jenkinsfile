@@ -7,8 +7,16 @@ def getVaultCacert() {
 }
 
 def getTargets() {
-    vaultVars = ["VAULT_ADDR=https://http.vault.svc.master.local:8200", "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "VAULT_TOKEN=a0018691-711e-7aeb-69a2-e28878aea0ed"]
-    minikube_targets = "echo /usr/local/bin/landscape environment --list-targets".execute(vaultVars, new File("/usr/local/bin")).text
+// gets provisioner targets from Vault
+// returns a list used for dynamic Jenkinsfile parameters
+    vaultEnvVars = [
+        "VAULT_ADDR=https://http.vault.svc.master.local:8200",
+        "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+        "VAULT_TOKEN=111ff8ae-2bb1-70e4-35ab-51e5856538ee"
+    ]
+
+    minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
+    minikube_targets_cmd.execute(vaultEnvVars, new File("/")).text
     println(minikube_targets)
     return minikube_targets
 }

@@ -17,7 +17,7 @@ Usage:
 Options:
   --provisioner=<provisioner>             k8s provisioner [default: minikube].
   --gce-project-id=<gce_project_id>       in GCE environment, which project ID to use
-  --kubernetes-version=<kubernetes_version>       in GCE environment, which project ID to use [default: 1.7.0].
+  --kubernetes-version=<kubernetes_version>       in GCE environment, which project ID to use [default: 1.6.4].
   --kubernetes-domain=<gce_project_id>       in GCE environment, which project ID to use
   --cluster-dns-domain=<dns_domain>       DNS domain used for inside-cluster DNS defaults to $GIT_BRANCH.local.
   --landscaper-git-branch=<git_branch>    Helm / Landscaper charts branch to deploy (dev vs. master, etc.) [default: master].
