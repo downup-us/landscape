@@ -8,7 +8,7 @@ def getVaultCacert() {
 
 def getTargets() {
     vaultVars = ["VAULT_ADDR=https://http.vault.svc.master.local:8200", "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "VAULT_TOKEN=a0018691-711e-7aeb-69a2-e28878aea0ed"]
-    minikube_targets = "landscape environment --list-targets".execute(vaultVars, new File("/usr/local/bin")).text
+    minikube_targets = "/usr/local/bin/landscape environment --list-targets".execute(vaultVars, new File("/usr/local/bin")).text
     return minikube_targets
 }
 
