@@ -69,7 +69,9 @@ def list_deploy_target_clusters(k8s_provisioner_selection=None):
     terraform_targets_root = '/secret/terraform/'
     available_terraform_targets = []
 
-    vault_client = hvac.Client(url="https://http.vault.svc.master.local", cert="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", token=os.environ['VAULT_TOKEN'])
+    vault_client = hvac.Client(url="https://http.vault.svc.master.local:8200",
+                                cert="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+                                token=os.environ['VAULT_TOKEN'])
     root_targets = vault_client.list(terraform_targets_root)
     
     targets_in_vault = root_targets['data']['keys']
