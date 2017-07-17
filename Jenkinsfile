@@ -19,8 +19,8 @@ def getTargets() {
     minikube_targets = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
     minikube_targets.consumeProcessOutput(sout, serr)
     minikube_targets.waitForOrKill(5000)
-    println(sout)
-    println(serr)
+    println($sout)
+    println($serr)
     return sout
 }
 
