@@ -29,7 +29,7 @@ def init_minikube(k8s_version, dns_domain):
     Starts minikube. Prints an error if non-zero exit status
     """
     mk_cmd_tmpl = THIRD_PARTY_TOOL_OPTIONS['minikube']['init_cmd_template']
-    k8s_provision_command = mk_cmd_tmpl.format(dns_domain, "virtualbox", k8s_version)
+    k8s_provision_command = mk_cmd_tmpl.format(dns_domain, "xhyve", k8s_version)
     print('  - running ' + k8s_provision_command)
     minikube_failed = subprocess.call(k8s_provision_command, shell=True)
     if minikube_failed:
