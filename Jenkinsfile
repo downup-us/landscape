@@ -12,7 +12,7 @@ def getTargets() {
     vaultEnvVars = [
         "VAULT_ADDR=https://http.vault.svc.master.local:8200",
         "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
-        "VAULT_TOKEN=111ff8ae-2bb1-70e4-35ab-51e5856538ee"
+        "VAULT_TOKEN=e3bd1ca1-0b7d-fa00-a91c-e4e41aa419d8"
     ]
     minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
     def sout = new StringBuilder(), serr = new StringBuilder()
