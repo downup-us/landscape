@@ -14,13 +14,17 @@ def getTargets() {
         "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
         "VAULT_TOKEN=111ff8ae-2bb1-70e4-35ab-51e5856538ee"
     ]
-    def sout = new StringBuilder(), serr = new StringBuilder()
     minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
-    minikube_targets = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
+    def sout = new StringBuilder(), serr = new StringBuilder()
+    target_list_retval = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
     minikube_targets.consumeProcessOutput(sout, serr)
     minikube_targets.waitForOrKill(5000)
-    println($sout)
-    println($serr)
+    if(target_list_retval != 0) {
+        println("Return value non-zero")
+        println(serr)
+    }
+    println("Return value OK")
+    println(sout)
     return sout
 }
 
