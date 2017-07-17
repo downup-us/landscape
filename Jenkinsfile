@@ -15,7 +15,7 @@ def getTargets() {
         "VAULT_TOKEN=111ff8ae-2bb1-70e4-35ab-51e5856538ee"
     ]
     def sout = new StringBuilder(), serr = new StringBuilder()
-    minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
+    minikube_targets_cmd = "ls"
     minikube_targets = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
     minikube_targets.consumeProcessOutput(sout, serr)
     minikube_targets.waitForOrKill(5000)
