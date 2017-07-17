@@ -16,7 +16,7 @@ def getTargets() {
     ]
 
     minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
-    minikube_targets_cmd.execute(vaultEnvVars, new File("/")).text
+    minikube_targets = minikube_targets_cmd.execute(vaultEnvVars, new File("/")).text
     println(minikube_targets)
     return minikube_targets
 }
