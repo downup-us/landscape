@@ -71,7 +71,8 @@ def landscaper_set_environment(git_branch, k8s_namespace, helm_chart_name, helm_
                                                    )
     print('        - reading Vault subtree: ' + secret_item)
 
-    vault_client = hvac.Client(token=os.environ['VAULT_TOKEN'])
+    vault_client = hvac.Client(url=os.environ['VAULT_ADDR'],
+                                token=os.environ['VAULT_TOKEN'])
     vault_chart_secrets_item = vault_client.read(secret_item)
 
     # compare landscaper secrets with vault contents
