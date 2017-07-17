@@ -16,14 +16,14 @@ def getTargets() {
     ]
     minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
     def sout = new StringBuilder(), serr = new StringBuilder()
-    target_list_retval = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
-    minikube_targets.consumeProcessOutput(sout, serr)
-    minikube_targets.waitForOrKill(5000)
-    if(target_list_retval != 0) {
+    target_list = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
+    target_list.consumeProcessOutput(sout, serr)
+    target_list.waitForOrKill(5000)
+    if(target_list != 0) {
         println("Return value non-zero")
         println(serr)
     }
-    println("Return value OK")
+    println("Return value ")
     println(sout)
     return sout
 }
