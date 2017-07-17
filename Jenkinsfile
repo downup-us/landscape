@@ -1,7 +1,5 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
@@ -21,12 +19,16 @@ def getTargets() {
     target_list.waitForOrKill(5000)
     if(target_list != 0) {
         println("Return value non-zero")
-        println(serr)
+        println(sout, serr)
+        System.exit(1)
     }
-    println("Return value ")
-    println(sout)
+    println("landscape command succeeded ")
+    println(sout, serr)
     return sout
 }
+
+properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+
 
 node('landscape') {
 
