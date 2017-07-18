@@ -110,12 +110,12 @@ def wait_for_tiller_ready(monitor_command):
     tiller_pod_status = proc.stdout.read().rstrip().decode()
 
     print('  - waiting for tiller pod to be ready')
-    warm_up_seconds = 5
+    warm_up_seconds = 10
     while tiller_pod_status != "Running":
         proc = subprocess.Popen(monitor_command, stdout=subprocess.PIPE, stderr=devnull, shell=True)
         tiller_pod_status = proc.stdout.read().rstrip().decode()
         sys.stdout.write('.')
         sys.stdout.flush()
         time.sleep(1) 
-    print("  - sleeping {0} to allow tiller to warm-up".format(warm_up_seconds))
+    print("  - sleeping {0} seconds to allow tiller to warm-up".format(warm_up_seconds))
     time.sleep(warm_up_seconds)

@@ -1,17 +1,34 @@
 #! /usr/bin/env groovy
 
-properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
-
 def getVaultCacert() {
     return "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 }
 
 def getTargets() {
-    vaultVars = ["VAULT_ADDR=https://http.vault.svc.master.local:8200", "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "VAULT_TOKEN=a0018691-711e-7aeb-69a2-e28878aea0ed"]
-    minikube_targets = "echo /usr/local/bin/landscape environment --list-targets".execute(vaultVars, new File("/usr/local/bin")).text
-    println(minikube_targets)
-    return minikube_targets
+// gets provisioner targets from Vault
+// returns a list used for dynamic Jenkinsfile parameters
+    vaultEnvVars = [
+        "VAULT_ADDR=https://http.vault.svc.master.local:8200",
+        "VAULT_CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+        "VAULT_TOKEN=e3bd1ca1-0b7d-fa00-a91c-e4e41aa419d8"
+    ]
+    minikube_targets_cmd = "/usr/local/bin/landscape environment --list-targets"
+    def sout = new StringBuilder(), serr = new StringBuilder()
+    target_list = minikube_targets_cmd.execute(vaultEnvVars, new File("/"))
+    target_list.consumeProcessOutput(sout, serr)
+    target_list.waitForOrKill(5000)
+    if(target_list != 0) {
+        println("Return value non-zero")
+        println(sout, serr)
+        System.exit(1)
+    }
+    println("landscape command succeeded ")
+    println(sout, serr)
+    return sout
 }
+
+properties([parameters([choice(choices: getTargets(), description: 'Kubernetes Provisioner', name: 'PROVISIONER')])])
+
 
 node('landscape') {
 
